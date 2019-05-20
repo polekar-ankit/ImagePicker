@@ -1,4 +1,4 @@
-package com.gipl.imagepicker;
+package com.gipl.pickersample;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +14,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+
+import com.gipl.imagepicker.ImagePicker;
+import com.gipl.imagepicker.ImagePickerDialog;
+import com.gipl.imagepicker.PickerConfiguration;
+import com.gipl.imagepicker.PickerListener;
+import com.gipl.imagepicker.PickerResult;
 
 import java.io.File;
 
