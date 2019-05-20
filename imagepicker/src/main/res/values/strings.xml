@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ImagePicker</string>
+    <string name="open_camera">Open Camera</string>
+    <string name="open_gallery">Open Gallery</string>
+    <string name="cancel">Cancel</string>
+    <array name="dialog_menus_image_picker">
+        <item>Open Camera</item>
+        <item>Open Gallery</item>
+        <item>Cancel</item>
+    </array>
+</resources>
