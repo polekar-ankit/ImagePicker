@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.gipl.imagepicker.ImagePicker;
 import com.gipl.imagepicker.ImagePickerDialog;
+import com.gipl.imagepicker.ImageResult;
 import com.gipl.imagepicker.PickerConfiguration;
 import com.gipl.imagepicker.PickerListener;
 import com.gipl.imagepicker.PickerResult;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                 .setTextColor(Color.parseColor("#000000"))
                 .setIconColor(Color.parseColor("#000000"))
                 .setBackGroundColor(Color.parseColor("#ffffff"))
-                .enableMultiSelect(false)
+                .enableMultiSelect(true)
                 .setPickerDialogListener(new PickerListener() {
                     @Override
                     public void onCancelClick() {
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 .setImagePickerResult(new PickerResult() {
 
                     @Override
-                    public void onImageGet(ImagePicker.ImageResult imageResult) {
+                    public void onImageGet(ImageResult imageResult) {
                         super.onImageGet(imageResult);
                         setImage(imageResult.getsImagePath(), imageResult.getImageBitmap());
                     }
@@ -62,12 +63,11 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onReceiveImageList(ArrayList<ImagePicker.ImageResult> imageResults) {
+                    public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
                         super.onReceiveImageList(imageResults);
                     }
                 })
                 .setSetCustomDialog(true);
-
 
 
         findViewById(R.id.btn_open_camera).setOnClickListener(new View.OnClickListener() {

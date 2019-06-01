@@ -18,7 +18,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -161,12 +160,18 @@ public class ImagePicker {
                                         Uri uri = data.getClipData().getItemAt(i).getUri();
                                         String sPath = MediaUtility.getFilePathFromUri(activity, uri);
                                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
+                                        if (sPath.trim().isEmpty()){
+                                          sPath = MediaUtility.getFilePathFromUri(activity, MediaUtility.insertImage(activity,bitmap));
+                                        }
                                         images.add(new ImageResult(sPath, bitmap));
                                     }
                                     iImagePickerResult.onReceiveImageList(images);
                                 } else {
                                     String sPath = MediaUtility.getFilePathFromUri(activity, data.getData());
                                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), data.getData());
+                                    if (sPath.trim().isEmpty()){
+                                        sPath = MediaUtility.getFilePathFromUri(activity, MediaUtility.insertImage(activity,bitmap));
+                                    }
                                     iImagePickerResult.onImageGet(new ImageResult(sPath, bitmap));
                                 }
                             }
@@ -260,25 +265,6 @@ public class ImagePicker {
         void onReceiveImageList(ArrayList<ImageResult> imageResults);
 
         void onError(CameraErrors cameraErrors);
-
-    }
-
-    public class ImageResult {
-        String sImagePath;
-        Bitmap bitmap;
-
-        public ImageResult(String sImagePath, Bitmap bitmap) {
-            this.sImagePath = sImagePath;
-            this.bitmap = bitmap;
-        }
-
-        public String getsImagePath() {
-            return sImagePath;
-        }
-
-        public Bitmap getImageBitmap() {
-            return bitmap;
-        }
 
     }
 

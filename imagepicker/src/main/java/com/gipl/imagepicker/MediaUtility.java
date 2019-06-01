@@ -2,10 +2,12 @@ package com.gipl.imagepicker;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -22,6 +24,12 @@ public class MediaUtility {
 
 
 
+    public static Uri insertImage(Context inContext,Bitmap inImage){
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "title", null);
+        return Uri.parse(path);
+    }
     public static String getFilePathFromUri(Context context, Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
 
