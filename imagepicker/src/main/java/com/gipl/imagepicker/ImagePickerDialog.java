@@ -73,7 +73,7 @@ public class ImagePickerDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = ((AppCompatActivity) context).getLayoutInflater();
         pickerDialogListener = pickerConfiguration.getPickerDialogListener();
-
+        imagePicker.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect());
 
         if (pickerConfiguration.isIsSetCustomDialog()) {
             View view = inflater.inflate(R.layout.layout_custom_image_picker, null);

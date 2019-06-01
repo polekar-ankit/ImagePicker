@@ -12,14 +12,18 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.Executors;
 
 import static android.app.Activity.RESULT_OK;
 import static com.gipl.imagepicker.MediaUtility.PROFILE_PHOTO;
@@ -31,6 +35,7 @@ public class ImagePicker {
 
     private static final int CAMERA_REQUEST = 12;
     private static final int CAMERA_PERMISSION_REQUEST = 123;
+    private static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
     private boolean fStoreInMyPath = false;
     private String DIRECTORY = "";
     private String IMAGE_PATH = "";
@@ -38,7 +43,8 @@ public class ImagePicker {
     private Fragment fragment;
     private IImagePickerResult iImagePickerResult;
     private String sImgPath = "";
-    private static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
+    private boolean isEnableMultiSelect;
+
     public ImagePicker(Context activity) {
         this.activity = activity;
     }
@@ -71,7 +77,7 @@ public class ImagePicker {
                     &&
                     ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             == PackageManager.PERMISSION_GRANTED) {
-                        startCameraIntent();
+                startCameraIntent();
             } else {
                 startPermissonRequest();
             }
@@ -109,51 +115,74 @@ public class ImagePicker {
     }
 
     public void startGallary() {
-        if(ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
+            intent.putExtra("android.intent.extra.ALLOW_MULTIPLE", isEnableMultiSelect);
             ((AppCompatActivity) activity).startActivityForResult(intent, PROFILE_PHOTO);
-        }else {
+        } else {
             startWriteStorageAccessPersmissionRequest();
         }
     }
 
-    private void startWriteStorageAccessPersmissionRequest(){
+    private void startWriteStorageAccessPersmissionRequest() {
 
         ActivityCompat.requestPermissions((Activity) activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 STORAGE_ACCESS_PERMISSION_REQUEST);
     }
+
     private boolean isDirAndPathProvided() {
         return !DIRECTORY.isEmpty() && !IMAGE_PATH.isEmpty();
     }
 
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        try {
-            if (resultCode == RESULT_OK) {
-                if (requestCode == CAMERA_REQUEST) {
-                    Bitmap photo = null;
-                    if (data != null)
-                        photo = (Bitmap) data.getExtras().get("data");
-                    if (iImagePickerResult != null)
-                        iImagePickerResult.onImageGet(sImgPath, photo);
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
 
-                    return;
-                }
-                if (requestCode == PROFILE_PHOTO) {
-                    String sPath = MediaUtility.getFilePathFromUri(activity, data.getData());
+        if (resultCode == RESULT_OK) {
+            if (requestCode == CAMERA_REQUEST) {
+                Bitmap photo = null;
+                if (data != null)
+                    photo = (Bitmap) data.getExtras().get("data");
+                if (iImagePickerResult != null)
+                    iImagePickerResult.onImageGet(new ImageResult(sImgPath, photo));
 
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), data.getData());
-                    iImagePickerResult.onImageGet(sPath, bitmap);
-                }
-
-            } else {
-
-                iImagePickerResult.onError(new CameraErrors("Unable get image try again", CameraErrors.IMAGE_ERROR));
+                return;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (requestCode == PROFILE_PHOTO) {
+                Executors.newSingleThreadExecutor().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (data != null) {
+                                if (data.getClipData() != null && data.getClipData().getItemCount() > 1) {
+                                    ArrayList<ImageResult> images = new ArrayList<>();
+                                    for (int i = 0; i < data.getClipData().getItemCount(); ++i) {
+                                        Uri uri = data.getClipData().getItemAt(i).getUri();
+                                        String sPath = MediaUtility.getFilePathFromUri(activity, uri);
+                                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
+                                        images.add(new ImageResult(sPath, bitmap));
+                                    }
+                                    iImagePickerResult.onReceiveImageList(images);
+                                } else {
+                                    String sPath = MediaUtility.getFilePathFromUri(activity, data.getData());
+                                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), data.getData());
+                                    iImagePickerResult.onImageGet(new ImageResult(sPath, bitmap));
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            iImagePickerResult.onError(new CameraErrors("Unable get image try again", CameraErrors.IMAGE_ERROR));
+                        }
+                    }
+                });
+
+            }
+
+        } else {
+            iImagePickerResult.onError(new CameraErrors("Unable get image try again", CameraErrors.IMAGE_ERROR));
         }
+
 
     }
 
@@ -172,9 +201,8 @@ public class ImagePicker {
                     openCamera();
                 }
             }
-        }
-        else if (requestCode == STORAGE_ACCESS_PERMISSION_REQUEST){
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        } else if (requestCode == STORAGE_ACCESS_PERMISSION_REQUEST) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startGallary();
             }
         }
@@ -191,7 +219,7 @@ public class ImagePicker {
 //            fragment.startActivityForResult(takePictureIntent, CAMERA_REQUEST);
 //        }
 //        else
-            ((Activity) activity).startActivityForResult(takePictureIntent, CAMERA_REQUEST);
+        ((Activity) activity).startActivityForResult(takePictureIntent, CAMERA_REQUEST);
     }
 
     private void startPermissonRequest() {
@@ -208,6 +236,9 @@ public class ImagePicker {
         this.iImagePickerResult = iImagePickerResult;
     }
 
+    public void setEnableMultiSelect(boolean enableMultiSelect) {
+        isEnableMultiSelect = enableMultiSelect;
+    }
 
 
     protected interface IPickerDialogListener extends Parcelable {
@@ -216,9 +247,38 @@ public class ImagePicker {
 
 
     public interface IImagePickerResult extends Parcelable {
-        void onImageGet(String sPath, Bitmap bitmap);
+        /**
+         * for single image you  will receive result from this listener
+         * @param imageResult:object of image path and bitmap
+         */
+        void onImageGet(ImageResult imageResult);
+
+        /**
+         * for muti select you will receive result from this listener
+         * @param imageResults :array of ImageResult(image path and bitmap)
+         */
+        void onReceiveImageList(ArrayList<ImageResult> imageResults);
 
         void onError(CameraErrors cameraErrors);
+
+    }
+
+    public class ImageResult {
+        String sImagePath;
+        Bitmap bitmap;
+
+        public ImageResult(String sImagePath, Bitmap bitmap) {
+            this.sImagePath = sImagePath;
+            this.bitmap = bitmap;
+        }
+
+        public String getsImagePath() {
+            return sImagePath;
+        }
+
+        public Bitmap getImageBitmap() {
+            return bitmap;
+        }
 
     }
 

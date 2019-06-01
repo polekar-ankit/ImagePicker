@@ -10,7 +10,6 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -22,6 +21,7 @@ import com.gipl.imagepicker.PickerListener;
 import com.gipl.imagepicker.PickerResult;
 
 import java.io.File;
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
                 .setTextColor(Color.parseColor("#000000"))
                 .setIconColor(Color.parseColor("#000000"))
                 .setBackGroundColor(Color.parseColor("#ffffff"))
+                .enableMultiSelect(false)
                 .setPickerDialogListener(new PickerListener() {
                     @Override
                     public void onCancelClick() {
@@ -49,15 +50,20 @@ public class MainActivity extends AppCompatActivity {
                 .setImagePickerResult(new PickerResult() {
 
                     @Override
-                    public void onImageGet(String sPath, Bitmap bitmap) {
-                        super.onImageGet(sPath, bitmap);
-                        setImage(sPath, bitmap);
+                    public void onImageGet(ImagePicker.ImageResult imageResult) {
+                        super.onImageGet(imageResult);
+                        setImage(imageResult.getsImagePath(), imageResult.getImageBitmap());
                     }
 
                     @Override
                     public void onError(ImagePicker.CameraErrors cameraErrors) {
                         super.onError(cameraErrors);
                         setError(cameraErrors);
+                    }
+
+                    @Override
+                    public void onReceiveImageList(ArrayList<ImagePicker.ImageResult> imageResults) {
+                        super.onReceiveImageList(imageResults);
                     }
                 })
                 .setSetCustomDialog(true);

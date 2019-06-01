@@ -10,6 +10,7 @@ import android.os.Parcelable;
 
 public class PickerConfiguration implements Parcelable {
 
+
     public static final Creator<PickerConfiguration> CREATOR = new Creator<PickerConfiguration>() {
         @Override
         public PickerConfiguration createFromParcel(Parcel in) {
@@ -28,6 +29,7 @@ public class PickerConfiguration implements Parcelable {
     private int nBackGroundColor;
     private int cameraImageId;
     private int galleryImageId;
+    private boolean isEnableMultiSelect;
     private ImagePicker.IPickerDialogListener pickerDialogListener;
     private ImagePicker.IImagePickerResult imagePickerResult;
     private String sCameraTitle;
@@ -41,8 +43,11 @@ public class PickerConfiguration implements Parcelable {
         galleryImageId = -1;
         sCameraTitle = "";
         sGalleryTitle = "";
+        isEnableMultiSelect = false;
 
     }
+
+
     protected PickerConfiguration(Parcel in) {
         fIsSetCustomDialog = in.readByte() != 0;
         colorCodeText = in.readInt();
@@ -51,14 +56,24 @@ public class PickerConfiguration implements Parcelable {
         nBackGroundColor = in.readInt();
         cameraImageId = in.readInt();
         galleryImageId = in.readInt();
+        isEnableMultiSelect = in.readByte() != 0;
         pickerDialogListener = in.readParcelable(ImagePicker.IPickerDialogListener.class.getClassLoader());
+        imagePickerResult = in.readParcelable(ImagePicker.IImagePickerResult.class.getClassLoader());
         sCameraTitle = in.readString();
         sGalleryTitle = in.readString();
-        imagePickerResult = in.readParcelable(ImagePicker.IImagePickerResult.class.getClassLoader());
     }
 
     public static PickerConfiguration build() {
         return new PickerConfiguration();
+    }
+
+    public boolean isEnableMultiSelect() {
+        return isEnableMultiSelect;
+    }
+
+    public PickerConfiguration enableMultiSelect(boolean enableMultiSelect) {
+        isEnableMultiSelect = enableMultiSelect;
+        return this;
     }
 
     public ImagePicker.IImagePickerResult getImagePickerResult() {
@@ -168,17 +183,18 @@ public class PickerConfiguration implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeByte((byte) (fIsSetCustomDialog ? 1 : 0));
-        parcel.writeInt(colorCodeText);
-        parcel.writeInt(colorCodeIcon);
-        parcel.writeByte((byte) (fIsDialogCancelable ? 1 : 0));
-        parcel.writeInt(nBackGroundColor);
-        parcel.writeInt(cameraImageId);
-        parcel.writeInt(galleryImageId);
-        parcel.writeParcelable(pickerDialogListener, i);
-        parcel.writeString(sCameraTitle);
-        parcel.writeString(sGalleryTitle);
-        parcel.writeParcelable(imagePickerResult,i);
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (fIsSetCustomDialog ? 1 : 0));
+        dest.writeInt(colorCodeText);
+        dest.writeInt(colorCodeIcon);
+        dest.writeByte((byte) (fIsDialogCancelable ? 1 : 0));
+        dest.writeInt(nBackGroundColor);
+        dest.writeInt(cameraImageId);
+        dest.writeInt(galleryImageId);
+        dest.writeByte((byte) (isEnableMultiSelect ? 1 : 0));
+        dest.writeParcelable(pickerDialogListener, flags);
+        dest.writeParcelable(imagePickerResult, flags);
+        dest.writeString(sCameraTitle);
+        dest.writeString(sGalleryTitle);
     }
 }

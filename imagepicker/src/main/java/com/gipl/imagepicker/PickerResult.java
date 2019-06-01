@@ -3,6 +3,8 @@ package com.gipl.imagepicker;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 
+import java.util.ArrayList;
+
 /**
  * Created by Ankit on 20-May-19.
  */
@@ -25,7 +27,12 @@ public class PickerResult implements ImagePicker.IImagePickerResult{
     }
 
     @Override
-    public void onImageGet(String sPath, Bitmap bitmap) {
+    public void onImageGet(ImagePicker.ImageResult imageResult) {
+
+    }
+
+    @Override
+    public void onReceiveImageList(ArrayList<ImagePicker.ImageResult> sFilePath) {
 
     }
 
