@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -36,11 +37,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         cropImageView = findViewById(R.id.cropImageView);
 
+
         final PickerConfiguration pickerConfiguration = PickerConfiguration.build()
                 .setTextColor(Color.parseColor("#000000"))
                 .setIconColor(Color.parseColor("#000000"))
                 .setBackGroundColor(Color.parseColor("#ffffff"))
-                .enableMultiSelect(true)
+                .setIsDialogCancelable(false)
                 .setPickerDialogListener(new PickerListener() {
                     @Override
                     public void onCancelClick() {

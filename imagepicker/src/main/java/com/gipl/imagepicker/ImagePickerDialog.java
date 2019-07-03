@@ -74,7 +74,8 @@ public class ImagePickerDialog extends DialogFragment {
         LayoutInflater inflater = ((AppCompatActivity) context).getLayoutInflater();
         pickerDialogListener = pickerConfiguration.getPickerDialogListener();
         imagePicker.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect());
-
+        builder.setCancelable(pickerConfiguration.isfIsDialogCancelable());
+        this.setCancelable(pickerConfiguration.isfIsDialogCancelable());
         if (pickerConfiguration.isIsSetCustomDialog()) {
             View view = inflater.inflate(R.layout.layout_custom_image_picker, null);
             builder.setView(view);
@@ -101,7 +102,7 @@ public class ImagePickerDialog extends DialogFragment {
                                     }
                                 }
                             });
-        builder.setCancelable(pickerConfiguration.isfIsDialogCancelable());
+
         return builder.create();
     }
 

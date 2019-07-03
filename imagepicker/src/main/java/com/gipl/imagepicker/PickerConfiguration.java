@@ -34,6 +34,7 @@ public class PickerConfiguration implements Parcelable {
     private ImagePicker.IImagePickerResult imagePickerResult;
     private String sCameraTitle;
     private String sGalleryTitle;
+
     private PickerConfiguration() {
         colorCodeText = Color.BLACK;
         nBackGroundColor = Color.WHITE;
