@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -29,6 +31,7 @@ import com.gipl.gallary.models.Image;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
 
 import static android.app.Activity.RESULT_OK;
 import static com.gipl.imagepicker.MediaUtility.PROFILE_PHOTO;
@@ -49,6 +52,12 @@ public class ImagePicker {
     private IImagePickerResult iImagePickerResult;
     private String sImgPath = "";
     private boolean isEnableMultiSelect;
+
+    public void setnMultiSelectCount(int nMultiSelectCount) {
+        this.nMultiSelectCount = nMultiSelectCount;
+    }
+
+    private int nMultiSelectCount = 1;
 
     public ImagePicker(Context activity) {
         this.activity = activity;
@@ -148,7 +157,7 @@ public class ImagePicker {
                     // Continue only if the File was successfully created
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 } else {
-                    iImagePickerResult.onError(new CameraErrors("Please provide Image Directory and Image path", CameraErrors.DIR_ERROR));
+                    iImagePickerResult.onError(new ImageErrors("Please provide Image Directory and Image path", ImageErrors.DIR_ERROR));
                 }
             }
             openCamera(takePictureIntent);
@@ -161,7 +170,7 @@ public class ImagePicker {
                 == PackageManager.PERMISSION_GRANTED) {
             if (isEnableMultiSelect) {
                 Intent intent = new Intent(activity, AlbumSelectActivity.class);
-                intent.putExtra(ConstantsCustomGallery.INTENT_EXTRA_LIMIT, 6);
+                intent.putExtra(ConstantsCustomGallery.INTENT_EXTRA_LIMIT, nMultiSelectCount);
                 ((AppCompatActivity) activity).startActivityForResult(intent, ConstantsCustomGallery.REQUEST_CODE);
             } else {
                 Intent intent = new Intent(Intent.ACTION_PICK);
@@ -188,19 +197,10 @@ public class ImagePicker {
         String sPath;
         if (resultCode == RESULT_OK) {
             if (requestCode == CAMERA_REQUEST) {
-                Bitmap photo = null;
-//                try {
-//                    if (data != null)
-//                        photo = (Bitmap) data.getExtras().get("data");
-//                }catch (Exception e){
-                photo = BitmapFactory.decodeFile(new File(sImgPath).getAbsolutePath());
-
-                //                }
-
+                Bitmap photo = BitmapFactory.decodeFile(new File(sImgPath).getAbsolutePath());
 
                 if (iImagePickerResult != null)
                     iImagePickerResult.onImageGet(new ImageResult(sImgPath, photo));
-
                 return;
 
             }
@@ -216,32 +216,31 @@ public class ImagePicker {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    iImagePickerResult.onError(new CameraErrors("Unable get image try again", CameraErrors.IMAGE_ERROR));
+                    iImagePickerResult.onError(new ImageErrors("Unable get image try again", ImageErrors.IMAGE_ERROR));
                 }
             }
-
-
-            if (requestCode == ConstantsCustomGallery.REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            if (requestCode == ConstantsCustomGallery.REQUEST_CODE && data != null) {
                 //The array list has the image paths of the selected images
                 try {
-                    Bitmap bitmap = null;
-                    Uri uri = null;
+                    Bitmap bitmap;
+                    Uri uri;
                     ArrayList<Image> imagesList = data.getParcelableArrayListExtra(ConstantsCustomGallery.INTENT_EXTRA_IMAGES);
                     ArrayList<ImageResult> images = new ArrayList<>();
                     for (int i = 0; i < imagesList.size(); i++) {
                         uri = Uri.fromFile(new File(imagesList.get(i).path));
-                        bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
+                        bitmap = BitmapFactory.decodeFile(new File(imagesList.get(i).path).getAbsolutePath());
+//                            bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
                         images.add(new ImageResult(String.valueOf(uri), bitmap));
                     }
                     iImagePickerResult.onReceiveImageList(images);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    iImagePickerResult.onError(new ImageErrors(e.getMessage(), ImageErrors.IMAGE_PICK_CANCEL));
                 }
 
             }
 
         } else {
-            iImagePickerResult.onError(new CameraErrors("Unable get image try again", CameraErrors.IMAGE_PICK_CANCEL));
+            iImagePickerResult.onError(new ImageErrors("Unable get image try again", ImageErrors.IMAGE_PICK_CANCEL));
         }
 
 
@@ -256,7 +255,7 @@ public class ImagePicker {
             } else {
                 if (!ActivityCompat.shouldShowRequestPermissionRationale((Activity) activity, permissions[0])
                         || !ActivityCompat.shouldShowRequestPermissionRationale((Activity) activity, permissions[1])) {
-                    iImagePickerResult.onError(new CameraErrors("Permission is disable by user", CameraErrors.PERMISSION_ERROR));
+                    iImagePickerResult.onError(new ImageErrors("Permission is disable by user", ImageErrors.PERMISSION_ERROR));
 
                 } else {
                     openCamera();
@@ -319,22 +318,22 @@ public class ImagePicker {
          */
         void onReceiveImageList(ArrayList<ImageResult> imageResults);
 
-        void onError(CameraErrors cameraErrors);
+        void onError(ImageErrors imageErrors);
 
     }
 
-    public class CameraErrors extends Exception {
+    public class ImageErrors extends Exception {
         public static final int PERMISSION_ERROR = 1231;
-        static final int DIR_ERROR = 1232;
-        static final int IMAGE_ERROR = 1233;
-        static final int IMAGE_PICK_CANCEL = 1234;
+        public static final int DIR_ERROR = 1232;
+        public static final int IMAGE_ERROR = 1233;
+        public static final int IMAGE_PICK_CANCEL = 1234;
         private int nErrorType;
 
-        public CameraErrors(String message) {
+        public ImageErrors(String message) {
             super(message);
         }
 
-        CameraErrors(String message, int nErrorType) {
+        ImageErrors(String message, int nErrorType) {
             super(message);
             this.nErrorType = nErrorType;
         }

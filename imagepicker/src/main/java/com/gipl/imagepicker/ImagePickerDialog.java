@@ -69,13 +69,16 @@ public class ImagePickerDialog extends DialogFragment {
 
         iImagePickerResult = pickerConfiguration.getImagePickerResult();
         imagePicker.setiImagePickerResult(iImagePickerResult);
-
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = ((AppCompatActivity) context).getLayoutInflater();
+
         pickerDialogListener = pickerConfiguration.getPickerDialogListener();
         imagePicker.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect());
+        imagePicker.setnMultiSelectCount(pickerConfiguration.getMultiSelectImageCount());
         builder.setCancelable(pickerConfiguration.isfIsDialogCancelable());
         this.setCancelable(pickerConfiguration.isfIsDialogCancelable());
+
+
         if (pickerConfiguration.isIsSetCustomDialog()) {
             View view = inflater.inflate(R.layout.layout_custom_image_picker, null);
             builder.setView(view);
@@ -140,27 +143,18 @@ public class ImagePickerDialog extends DialogFragment {
         LinearLayout llOpenGallery = view.findViewById(R.id.ll_gallery);
         TextView tvCancel = view.findViewById(R.id.tv_cancel);
 
-        llOpenGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                imagePicker.startGallary();
-                dismiss();
-            }
+        llOpenGallery.setOnClickListener(view13 -> {
+            imagePicker.startGallary();
+            dismiss();
         });
-        llOpenCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                imagePicker.openCamera();
-                dismiss();
-            }
+        llOpenCamera.setOnClickListener(view12 -> {
+            imagePicker.openCamera();
+            dismiss();
         });
-        tvCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (pickerDialogListener != null)
-                    pickerDialogListener.onCancelClick();
-                dismiss();
-            }
+        tvCancel.setOnClickListener(view1 -> {
+            if (pickerDialogListener != null)
+                pickerDialogListener.onCancelClick();
+            dismiss();
         });
     }
 

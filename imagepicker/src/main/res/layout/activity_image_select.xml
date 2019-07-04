@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_image_select"
     android:layout_width="match_parent"
+    android:background="#fff"
     android:layout_height="match_parent">
 
     <include
@@ -36,6 +37,7 @@
         android:paddingTop="1dp"
         android:paddingEnd="1dp"
         android:paddingBottom="1dp"
+        android:background="#fff"
         tools:itemCount="10"
         tools:listitem="@layout/grid_view_image_select" />
 </RelativeLayout>

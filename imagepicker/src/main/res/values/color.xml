@@ -4,6 +4,6 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="multiple_image_select_primary">#FFFFFF</color>
-    <color name="multiple_image_select_albumTextBackground">@color/colorPrimary</color>
+    <color name="multiple_image_select_albumTextBackground">#7E000000</color>
     <color name="multiple_image_select_imageSelectBackground">#000000</color>
 </resources>

@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * Created by MyInnos on 03-11-2016.
  */
 public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSelectAdapter.ViewHolder> {
-    protected int size;
+    protected int size = 0;
     private ArrayList<Image> images = new ArrayList<>();
     private int countSelected;
     private IItemClickListener iItemClickListener;
@@ -43,7 +43,9 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
     }
 
     public void addItems(ArrayList<Image> images) {
-        this.images = images;
+        int pos = images.size() - 1;
+        this.images.addAll(images);
+        notifyItemMoved(pos, images.size() - 1);
     }
 
     public void setiItemClickListener(IItemClickListener iItemClickListener) {
@@ -59,7 +61,6 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
     }
 
 
-
     public ArrayList<Image> getSelected() {
         ArrayList<Image> selectedImages = new ArrayList<>();
         for (int i = 0, l = images.size(); i < l; i++) {
@@ -69,6 +70,7 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
         }
         return selectedImages;
     }
+
     public void setLayoutParams(int size) {
         this.size = size;
     }
@@ -79,7 +81,9 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
 //        viewHolder.imageView.getLayoutParams().height = size;
 //
 //        viewHolder.view.getLayoutParams().width = size;
-//        viewHolder.view.getLayoutParams().height = size;
+        if (size != 0)
+            size = viewHolder.view.getLayoutParams().width;
+        viewHolder.view.getLayoutParams().height = size;
 
         if (images.get(position).isSelected) {
             viewHolder.view.setAlpha(0.5f);
@@ -147,7 +151,7 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
 
     public void addItem(Image image) {
         images.add(image);
-        notifyItemChanged(getItemCount()-1);
+        notifyItemChanged(getItemCount() - 1);
     }
 
     public interface IItemClickListener {

@@ -9,7 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="#fff"
         android:contentInsetEnd="0dp"
         android:contentInsetRight="0dp"
         android:title="@string/app_name"
@@ -17,7 +17,7 @@
         app:contentInsetLeft="0dp"
         app:contentInsetRight="0dp"
         app:contentInsetStart="0dp"
-        app:titleTextColor="#ffffff">
+        app:titleTextColor="#00FFFFFF">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -30,7 +30,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerInParent="true"
                 android:layout_marginStart="45dp"
-                android:textColor="#ffffff"
+                android:textColor="#000"
                 android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_alignParentLeft="true"
@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:layout_centerVertical="true"
-                android:textColor="#ffffff"
+                android:textColor="#000"
                 android:textSize="16sp" />
 
             <TextView
@@ -54,7 +54,7 @@
                 android:layout_marginEnd="10dp"
                 android:padding="5dp"
                 android:text="@string/add"
-                android:textColor="#ffffff"
+                android:textColor="#000"
                 android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_alignParentRight="true"
@@ -72,6 +72,7 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="16dp"
                     android:src="@drawable/ic_arrow_left"
+                    app:tint="#000"
                     android:layout_alignParentLeft="true"
                     android:layout_marginLeft="16dp" />
             </LinearLayout>

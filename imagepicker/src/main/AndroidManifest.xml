@@ -12,13 +12,15 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <application>
+    <application android:largeHeap="true">
         <activity
             android:name="com.gipl.gallary.activities.AlbumSelectActivity"
+            android:theme="@style/Theme.Design.NoActionBar"
             android:screenOrientation="portrait"
             android:hardwareAccelerated="true" />
         <activity
             android:name="com.gipl.gallary.activities.ImageSelectActivity"
+            android:theme="@style/Theme.Design.NoActionBar"
             android:screenOrientation="portrait"
             android:hardwareAccelerated="true" />
         <provider

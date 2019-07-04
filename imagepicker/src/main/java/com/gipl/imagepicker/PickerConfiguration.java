@@ -1,5 +1,6 @@
 package com.gipl.imagepicker;
 
+import android.arch.lifecycle.Observer;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -11,17 +12,6 @@ import android.os.Parcelable;
 public class PickerConfiguration implements Parcelable {
 
 
-    public static final Creator<PickerConfiguration> CREATOR = new Creator<PickerConfiguration>() {
-        @Override
-        public PickerConfiguration createFromParcel(Parcel in) {
-            return new PickerConfiguration(in);
-        }
-
-        @Override
-        public PickerConfiguration[] newArray(int size) {
-            return new PickerConfiguration[size];
-        }
-    };
     private boolean fIsSetCustomDialog;
     private int colorCodeText;
     private int colorCodeIcon;
@@ -35,19 +25,15 @@ public class PickerConfiguration implements Parcelable {
     private String sCameraTitle;
     private String sGalleryTitle;
 
-    private PickerConfiguration() {
-        colorCodeText = Color.BLACK;
-        nBackGroundColor = Color.WHITE;
-        fIsSetCustomDialog = false;
-        fIsDialogCancelable = true;
-        cameraImageId = -1;
-        galleryImageId = -1;
-        sCameraTitle = "";
-        sGalleryTitle = "";
-        isEnableMultiSelect = false;
-
+    public void setObserver(Observer observer) {
+        this.observer = observer;
     }
 
+    public Observer getObserver() {
+        return observer;
+    }
+
+    private Observer observer;
 
     protected PickerConfiguration(Parcel in) {
         fIsSetCustomDialog = in.readByte() != 0;
@@ -62,7 +48,46 @@ public class PickerConfiguration implements Parcelable {
         imagePickerResult = in.readParcelable(ImagePicker.IImagePickerResult.class.getClassLoader());
         sCameraTitle = in.readString();
         sGalleryTitle = in.readString();
+        multiSelectImageCount = in.readInt();
     }
+
+    public static final Creator<PickerConfiguration> CREATOR = new Creator<PickerConfiguration>() {
+        @Override
+        public PickerConfiguration createFromParcel(Parcel in) {
+            return new PickerConfiguration(in);
+        }
+
+        @Override
+        public PickerConfiguration[] newArray(int size) {
+            return new PickerConfiguration[size];
+        }
+    };
+
+    public int getMultiSelectImageCount() {
+        return multiSelectImageCount;
+    }
+
+    public PickerConfiguration setMultiSelectImageCount(int multiSelectImageCount) {
+        this.multiSelectImageCount = multiSelectImageCount;
+        return this;
+    }
+
+    private int multiSelectImageCount;
+
+    private PickerConfiguration() {
+        colorCodeText = Color.BLACK;
+        nBackGroundColor = Color.WHITE;
+        fIsSetCustomDialog = false;
+        fIsDialogCancelable = true;
+        cameraImageId = -1;
+        galleryImageId = -1;
+        sCameraTitle = "";
+        sGalleryTitle = "";
+        isEnableMultiSelect = false;
+        multiSelectImageCount = 1;
+
+    }
+
 
     public static PickerConfiguration build() {
         return new PickerConfiguration();
@@ -197,5 +222,6 @@ public class PickerConfiguration implements Parcelable {
         dest.writeParcelable(imagePickerResult, flags);
         dest.writeString(sCameraTitle);
         dest.writeString(sGalleryTitle);
+        dest.writeInt(multiSelectImageCount);
     }
 }

@@ -36,7 +36,7 @@ public class PickerResult implements ImagePicker.IImagePickerResult{
     }
 
     @Override
-    public void onError(ImagePicker.CameraErrors cameraErrors) {
+    public void onError(ImagePicker.ImageErrors imageErrors) {
 
     }
 

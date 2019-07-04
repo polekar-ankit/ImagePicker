@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -43,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
                 .setIconColor(Color.parseColor("#000000"))
                 .setBackGroundColor(Color.parseColor("#ffffff"))
                 .setIsDialogCancelable(false)
+                .enableMultiSelect(true)
+                .setMultiSelectImageCount(7)
                 .setPickerDialogListener(new PickerListener() {
                     @Override
                     public void onCancelClick() {
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(ImagePicker.CameraErrors cameraErrors) {
+                    public void onError(ImagePicker.ImageErrors cameraErrors) {
                         super.onError(cameraErrors);
                         setError(cameraErrors);
                     }
@@ -67,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
                         super.onReceiveImageList(imageResults);
+                        int count =  imageResults.size();
+                        Toast.makeText(MainActivity.this, "Found image list with" + count+ "images Successfully added", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setSetCustomDialog(true);
@@ -111,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
             cropImageView.setImageBitmap(bitmap);
     }
 
-    public void setError(ImagePicker.CameraErrors cameraErrors) {
-        if (cameraErrors.getErrorType() == ImagePicker.CameraErrors.PERMISSION_ERROR) {
+    public void setError(ImagePicker.ImageErrors imageErrors) {
+        if (imageErrors.getErrorType() == ImagePicker.ImageErrors.PERMISSION_ERROR) {
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
             alertDialog.setTitle("Camera permission deny!");
             alertDialog.setMessage("Camera will be available after enabling Camera and Storage permission from setting");
@@ -135,6 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
             alertDialog.show();
         }
-        Toast.makeText(MainActivity.this, cameraErrors.getMessage(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, imageErrors.getMessage(), Toast.LENGTH_SHORT).show();
     }
 }

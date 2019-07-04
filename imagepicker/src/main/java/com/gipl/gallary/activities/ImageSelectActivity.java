@@ -29,7 +29,10 @@ import com.gipl.gallary.models.Image;
 import com.gipl.imagepicker.R;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -37,20 +40,19 @@ import java.util.HashSet;
  */
 public class ImageSelectActivity extends HelperActivity {
     private final String[] projection = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA};
-    MutableLiveData<Image> imageMutableLiveData = new MutableLiveData<>();
+    MutableLiveData<ArrayList<Image>> imageMutableLiveData = new MutableLiveData<>();
+    //    private ContentObserver observer;
+    MutableLiveData<Message> messageMutableLiveData = new MutableLiveData<>();
+    ExecutorService executors;
     //    private ArrayList<Image> images;
     private String album;
     private TextView errorDisplay, tvProfile, tvAdd, tvSelectCount;
     private LinearLayout liFinish;
     private ProgressBar loader;
-
-
     //    private int countSelected;
     private RecyclerView gridView;
+    //    private Handler handler;
     private CustomImageSelectAdapter adapter;
-    private ContentObserver observer;
-    private Handler handler;
-    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,116 +80,99 @@ public class ImageSelectActivity extends HelperActivity {
         gridView.setLayoutManager(new GridLayoutManager(this, 3));
         adapter = new CustomImageSelectAdapter();
         gridView.setAdapter(adapter);
-        imageMutableLiveData.observe(this, new Observer<Image>() {
+
+        imageMutableLiveData.observe(this, new Observer<ArrayList<Image>>() {
             @Override
-            public void onChanged(@Nullable Image image) {
-                adapter.addItem(image);
+            public void onChanged(@Nullable ArrayList<Image> images) {
+                adapter.addItems(images);
+            }
+        });
+        messageMutableLiveData.observe(this, this::processMessage);
+        adapter.setiItemClickListener(image -> {
+            tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));
+            tvSelectCount.setVisibility(View.VISIBLE);
+            tvAdd.setVisibility(View.VISIBLE);
+            tvProfile.setVisibility(View.GONE);
+
+            if (adapter.getCountSelected() == 0) {
+                //actionMode.finish();
+                tvSelectCount.setVisibility(View.GONE);
+                tvAdd.setVisibility(View.GONE);
+                tvProfile.setVisibility(View.VISIBLE);
             }
         });
 
-        adapter.setiItemClickListener(new CustomImageSelectAdapter.IItemClickListener() {
-            @Override
-            public void onItemClick(Image image) {
-                //actionMode.setTitle(countSelected + " " + getString(R.string.selected));
-                tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));
-                tvSelectCount.setVisibility(View.VISIBLE);
-                tvAdd.setVisibility(View.VISIBLE);
-                tvProfile.setVisibility(View.GONE);
 
-                if (adapter.getCountSelected() == 0) {
-                    //actionMode.finish();
-                    tvSelectCount.setVisibility(View.GONE);
-                    tvAdd.setVisibility(View.GONE);
-                    tvProfile.setVisibility(View.VISIBLE);
-                }
+        liFinish.setOnClickListener(v -> {
+            if (tvSelectCount.getVisibility() == View.VISIBLE) {
+                adapter.deselectAll();
+            } else {
+                finish();
+                //overridePendingTransition(ac, abc_fade_out);
             }
         });
 
-
-        liFinish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (tvSelectCount.getVisibility() == View.VISIBLE) {
-                    adapter.deselectAll();
-                } else {
-                    finish();
-                    //overridePendingTransition(ac, abc_fade_out);
-                }
-            }
-        });
-
-        tvAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendIntent();
-            }
-        });
+        tvAdd.setOnClickListener(v -> sendIntent());
     }
 
-    @SuppressLint("HandlerLeak")
-    @Override
-    protected void onStart() {
-        super.onStart();
+    private void processMessage(Message message) {
+        switch (message.what) {
+            case ConstantsCustomGallery.PERMISSION_GRANTED: {
+                loadImages();
+                break;
+            }
 
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case ConstantsCustomGallery.PERMISSION_GRANTED: {
-                        loadImages();
-                        break;
-                    }
+            case ConstantsCustomGallery.FETCH_STARTED: {
+                loader.setVisibility(View.VISIBLE);
+                gridView.setVisibility(View.VISIBLE);
+                break;
+            }
 
-                    case ConstantsCustomGallery.FETCH_STARTED: {
-                        loader.setVisibility(View.VISIBLE);
-                        gridView.setVisibility(View.VISIBLE);
-                        break;
-                    }
-
-                    case ConstantsCustomGallery.FETCH_COMPLETED: {
+            case ConstantsCustomGallery.FETCH_COMPLETED: {
                         /*
                         If adapter is null, this implies that the loaded images will be shown
                         for the first time, hence send FETCH_COMPLETED message.
                         However, if adapter has been initialised, this thread was run either
                         due to the activity being restarted or content being changed.
                          */
-                        loader.setVisibility(View.GONE);
-                        gridView.setVisibility(View.VISIBLE);
+                loader.setVisibility(View.GONE);
+                gridView.setVisibility(View.VISIBLE);
 
                             /*
                             Some selected images may have been deleted
                             hence update action mode title
                              */
-                        adapter.setCountSelected(msg.arg1);
-                        //actionMode.setTitle(countSelected + " " + getString(R.string.selected));
-                        tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));
-                        tvSelectCount.setVisibility(View.VISIBLE);
-                        tvAdd.setVisibility(View.VISIBLE);
-                        tvProfile.setVisibility(View.GONE);
+
+                adapter.setCountSelected(message.arg1);
+                if (adapter.getCountSelected() > 0) {
+                    //actionMode.setTitle(countSelected + " " + getString(R.string.selected));
+                    tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));
+                    tvSelectCount.setVisibility(View.VISIBLE);
+                    tvAdd.setVisibility(View.VISIBLE);
+                } else
+                    tvAdd.setVisibility(View.GONE);
+
+                tvProfile.setVisibility(View.GONE);
 
 
-                        break;
-                    }
-
-                    case ConstantsCustomGallery.ERROR: {
-                        loader.setVisibility(View.GONE);
-                        errorDisplay.setVisibility(View.VISIBLE);
-                        break;
-                    }
-
-                    default: {
-                        super.handleMessage(msg);
-                    }
-                }
+                break;
             }
-        };
-        observer = new ContentObserver(handler) {
-            @Override
-            public void onChange(boolean selfChange) {
-                loadImages();
+
+            case ConstantsCustomGallery.ERROR: {
+                loader.setVisibility(View.GONE);
+                errorDisplay.setVisibility(View.VISIBLE);
+                break;
             }
-        };
-        getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, observer);
+
+        }
+    }
+
+    @SuppressLint("HandlerLeak")
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadImages();
+//        getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, observer);
 
         checkPermission();
     }
@@ -195,21 +180,7 @@ public class ImageSelectActivity extends HelperActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
-        stopThread();
-
-        getContentResolver().unregisterContentObserver(observer);
-        observer = null;
-
-        if (handler != null) {
-            handler.removeCallbacksAndMessages(null);
-            handler = null;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        executors.shutdown();
     }
 
 //    private void orientationBasedUI(int orientation) {
@@ -223,6 +194,11 @@ public class ImageSelectActivity extends HelperActivity {
 //        }
 //        gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 3 : 5);
 //    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -253,41 +229,21 @@ public class ImageSelectActivity extends HelperActivity {
     }
 
     private void loadImages() {
-        startThread(new ImageLoaderRunnable());
+        executors = Executors.newSingleThreadExecutor();
+        executors.submit(new ImageLoaderRunnable());
     }
 
-    private void startThread(Runnable runnable) {
-        stopThread();
-        thread = new Thread(runnable);
-        thread.start();
-    }
-
-    private void stopThread() {
-        if (thread == null || !thread.isAlive()) {
-            return;
-        }
-
-        thread.interrupt();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void sendMessage(int what) {
         sendMessage(what, 0);
     }
 
     private void sendMessage(int what, int arg1) {
-        if (handler == null) {
-            return;
-        }
 
-        Message message = handler.obtainMessage();
+        Message message = new Message();
         message.what = what;
         message.arg1 = arg1;
-        message.sendToTarget();
+        messageMutableLiveData.postValue(message);
     }
 
     @Override
@@ -303,7 +259,7 @@ public class ImageSelectActivity extends HelperActivity {
 
     @Override
     public void onBackPressed() {
-        if (tvSelectCount.getVisibility() == View.VISIBLE) {
+        if (adapter.getCountSelected() > 0) {
             tvProfile.setVisibility(View.VISIBLE);
             tvAdd.setVisibility(View.GONE);
             tvSelectCount.setVisibility(View.GONE);
@@ -311,7 +267,7 @@ public class ImageSelectActivity extends HelperActivity {
         } else {
             super.onBackPressed();
             //overridePendingTransition(abc_fade_in, abc_fade_out);
-            finish();
+//            finish();
         }
 
     }
@@ -319,6 +275,7 @@ public class ImageSelectActivity extends HelperActivity {
     private class ImageLoaderRunnable implements Runnable {
         @Override
         public void run() {
+
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             /*
             If the adapter is null, this is first time this activity's view is
@@ -356,8 +313,9 @@ public class ImageSelectActivity extends HelperActivity {
             int tempCountSelected = 0;
 
             if (cursor.moveToLast()) {
+                ArrayList<Image> images = new ArrayList<>();
                 do {
-                    if (Thread.interrupted()) {
+                    if (executors.isShutdown()) {
                         return;
                     }
 
@@ -377,11 +335,11 @@ public class ImageSelectActivity extends HelperActivity {
                     }
 
                     if (file.exists()) {
-                        imageMutableLiveData.postValue(new Image(id, name, path, isSelected));
-                        SystemClock.sleep(200);
+                        images.add(new Image(id, name, path, isSelected));
                     }
 
                 } while (cursor.moveToPrevious());
+                imageMutableLiveData.postValue(images);
             }
             cursor.close();
             sendMessage(ConstantsCustomGallery.FETCH_COMPLETED, tempCountSelected);
