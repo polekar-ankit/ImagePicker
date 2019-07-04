@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
@@ -192,12 +193,9 @@ public class ImagePicker {
 //                    if (data != null)
 //                        photo = (Bitmap) data.getExtras().get("data");
 //                }catch (Exception e){
-                    try {
-                        photo = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), Uri.parse(sImgPath));
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-//                }
+                photo = BitmapFactory.decodeFile(new File(sImgPath).getAbsolutePath());
+
+                //                }
 
 
                 if (iImagePickerResult != null)
