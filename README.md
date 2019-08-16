@@ -20,7 +20,7 @@ for sample code refer reposioty
 
 ## Authors
 
-* **Ankit Polekar** - *Initial work* - [ImagePicker](https://github.com/polekar-ankit/ImagePicker)
+* **Ankit Polekar**
 
 
 
