@@ -1,6 +1,6 @@
 # ImagePicker
 
-Use to pick image from gallery or using camera.
+Use to pickup image from gallery or using camera.
 
 ### Installing
 Add following line to gradle file 
