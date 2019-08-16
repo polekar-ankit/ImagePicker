@@ -1,14 +1,30 @@
 # ImagePicker
+
 Use to pick image from gallery or using camera.
 
+### Installing
+Add following line to gradle file 
+```
 allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
+        repositories {
+            jcenter()
+            maven { url "https://jitpack.io" }
+        }
+   }
    dependencies {
         implementation 'com.github.polekar-ankit:ImagePicker:1.0'
    }
+```
+
+for sample code refer reposioty
+
+## Authors
+
+* **Ankit Polekar** - *Initial work* - [ImagePicker](https://github.com/polekar-ankit/ImagePicker)
+
+
+
+
+
   
   
