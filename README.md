@@ -1,9 +1,9 @@
 # ImagePicker
 
-Use to pickup image from gallery or using camera.
+Use it to pick an image from phone gallery or using camera.
 
 ### Installing
-Add following line to gradle file 
+Add following line to gradle file.
 ```
 allprojects {
         repositories {
@@ -16,13 +16,12 @@ allprojects {
    }
 ```
 
-for sample code refer reposioty
+For sample code, refer repository.
 
 ## Authors
 
 * **Ankit Polekar**
 * **Suyash Raikar**
-
 
 
 
