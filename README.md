@@ -1,6 +1,6 @@
 # ImagePicker
 
-Use it to pick an image from phone gallery or using camera.
+This is the repository for Android ImagePicker. It contains source code, help and one sample app to test the functionality. Include it in your Android project to provide an image picker to select an image from phone gallery or to take picture using camera.
 
 ### Installing
 Add following line to gradle file.
@@ -16,7 +16,31 @@ allprojects {
    }
 ```
 
+### Example
 For sample code, refer repository.
+
+In order to use this image picker, you need to set its configuration using PickerConfiguration class.
+```
+final PickerConfiguration pickerConfiguration = PickerConfiguration.build()
+```
+
+To open the camera or gallery, use ImagePickerDialog class.
+```
+// Open camera.
+imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
+
+// Open gallery.
+imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(false));
+```
+
+In order to get and process selected image, use setImagePickerResult() method of PickerConfiguration class and override methods of PickerResult class.
+```
+@Override
+public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
+        super.onReceiveImageList(imageResults);
+        int count =  imageResults.size();
+}
+```
 
 ## Authors
 
