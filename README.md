@@ -24,12 +24,12 @@ In order to use this image picker, you need to set its configuration using Picke
 final PickerConfiguration pickerConfiguration = PickerConfiguration.build()
 ```
 
-To open the camera or gallery, use ImagePickerDialog class.
+To open image picker dialog
 ```
-// Open camera.
+// Open custom dialog with icons.
 imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
 
-// Open gallery.
+// Open default dialog.
 imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(false));
 ```
 
