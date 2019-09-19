@@ -17,7 +17,7 @@ allprojects {
 ```
 
 ### Example
-For sample code, refer repository.
+To view complete source code for the sample, refer repository.
 
 In order to use this image picker, you need to set its configuration using PickerConfiguration class.
 ```
