@@ -25,15 +25,7 @@ public class PickerConfiguration implements Parcelable {
     private String sCameraTitle;
     private String sGalleryTitle;
 
-    public void setObserver(Observer observer) {
-        this.observer = observer;
-    }
 
-    public Observer getObserver() {
-        return observer;
-    }
-
-    private Observer observer;
 
     protected PickerConfiguration(Parcel in) {
         fIsSetCustomDialog = in.readByte() != 0;

@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.request.RequestOptions;
 import com.gipl.gallary.models.Album;
 import com.gipl.imagepicker.R;
 
@@ -17,7 +20,7 @@ import java.util.ArrayList;
 
 
 /**
- * Created by MyInnos on 03-11-2016.
+ * currently not used in application will be deleted in feature
  */
 public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
 
@@ -47,35 +50,46 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
 
         viewHolder.textView.setText(arrayList.get(position).name);
 
-        if (arrayList.get(position).name.equals("Take Photo")) {
+        RequestOptions requestOptions = new RequestOptions()
+                .dontAnimate()
+                .override(200, 200)
+                .placeholder(R.color.colorAccent)
+                .priority(Priority.IMMEDIATE);
 
-       /*     RequestOptions requestOptions = new RequestOptions()
-                    .dontAnimate()
-                    .override(200, 200)
-                    .placeholder(R.color.colorAccent)
-                    .priority(Priority.IMMEDIATE);
-
-            Glide.with(context)
-                    .load()
-                    .apply(requestOptions)
-                    .into(viewHolder.imageView);*/
-                viewHolder.imageView.setImageURI(Uri.parse(arrayList.get(position).cover));
-
-
-        } else {
-            final Uri uri = Uri.fromFile(new File(arrayList.get(position).cover));
-            /*RequestOptions requestOptions = new RequestOptions()
-                    .dontAnimate()
-                    .override(200, 200)
-                    .placeholder(R.color.colorAccent)
-                    .priority(Priority.IMMEDIATE);
-
-            Glide.with(context)
-                    .load(uri)
-                    .apply(requestOptions)
-                    .into(viewHolder.imageView);*/
-            viewHolder.imageView.setImageURI(uri);
-        }
+        Glide.with(context)
+                .load(arrayList.get(position).cover)
+                .apply(requestOptions)
+                .into(viewHolder.imageView);
+        viewHolder.imageView.setImageURI(Uri.parse(arrayList.get(position).cover));
+//        if (arrayList.get(position).name.equals("Take Photo")) {
+//
+//       /*     RequestOptions requestOptions = new RequestOptions()
+//                    .dontAnimate()
+//                    .override(200, 200)
+//                    .placeholder(R.color.colorAccent)
+//                    .priority(Priority.IMMEDIATE);
+//
+//            Glide.with(context)
+//                    .load()
+//                    .apply(requestOptions)
+//                    .into(viewHolder.imageView);*/
+//                viewHolder.imageView.setImageURI(Uri.parse(arrayList.get(position).cover));
+//
+//
+//        } else {
+//            final Uri uri = Uri.fromFile(new File(arrayList.get(position).cover));
+//            /*RequestOptions requestOptions = new RequestOptions()
+//                    .dontAnimate()
+//                    .override(200, 200)
+//                    .placeholder(R.color.colorAccent)
+//                    .priority(Priority.IMMEDIATE);
+//
+//            Glide.with(context)
+//                    .load(uri)
+//                    .apply(requestOptions)
+//                    .into(viewHolder.imageView);*/
+//            viewHolder.imageView.setImageURI(uri);
+//        }
 
         return convertView;
     }

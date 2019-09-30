@@ -109,28 +109,25 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
                 .apply(requestOptions)
                 .into(viewHolder.imageView);
 
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!images.get(position).isSelected && countSelected >= ConstantsCustomGallery.limit) {
-                    Toast.makeText(
-                            v.getContext(),
-                            String.format(v.getContext().getString(R.string.limit_exceeded), ConstantsCustomGallery.limit),
-                            Toast.LENGTH_SHORT)
-                            .show();
-                    return;
-                }
+        viewHolder.itemView.setOnClickListener(v -> {
+            if (!images.get(position).isSelected && countSelected >= ConstantsCustomGallery.limit) {
+                Toast.makeText(
+                        v.getContext(),
+                        String.format(v.getContext().getString(R.string.limit_exceeded), ConstantsCustomGallery.limit),
+                        Toast.LENGTH_SHORT)
+                        .show();
+                return;
+            }
 
-                images.get(position).isSelected = !images.get(position).isSelected;
-                if (images.get(position).isSelected) {
-                    countSelected++;
-                } else {
-                    countSelected--;
-                }
-                notifyItemChanged(position);
-                if (iItemClickListener != null) {
-                    iItemClickListener.onItemClick(images.get(position));
-                }
+            images.get(position).isSelected = !images.get(position).isSelected;
+            if (images.get(position).isSelected) {
+                countSelected++;
+            } else {
+                countSelected--;
+            }
+            notifyItemChanged(position);
+            if (iItemClickListener != null) {
+                iItemClickListener.onItemClick(images.get(position));
             }
         });
     }

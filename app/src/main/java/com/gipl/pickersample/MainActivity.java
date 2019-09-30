@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
                         super.onReceiveImageList(imageResults);
                         int count =  imageResults.size();
-                        Toast.makeText(MainActivity.this, "Found image list with" + count+ "images Successfully added", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Found image list with " + count+ " images Successfully added", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setSetCustomDialog(true);
@@ -83,14 +83,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        findViewById(R.id.btn_open_picker).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (imagePickerDialog != null && imagePickerDialog.isVisible())
-                    imagePickerDialog.dismiss();
-                imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(),
-                        pickerConfiguration.setSetCustomDialog(false));
-            }
+        findViewById(R.id.btn_open_picker).setOnClickListener(view -> {
+            if (imagePickerDialog != null && imagePickerDialog.isVisible())
+                imagePickerDialog.dismiss();
+            imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(),
+                    pickerConfiguration.setSetCustomDialog(false));
         });
     }
 

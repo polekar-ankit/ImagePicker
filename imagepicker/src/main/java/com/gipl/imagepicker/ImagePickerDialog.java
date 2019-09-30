@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
  * Creted by User on 25-Jan-19
  */
@@ -59,7 +61,6 @@ public class ImagePickerDialog extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
     }
 
     @NonNull
@@ -68,7 +69,7 @@ public class ImagePickerDialog extends DialogFragment {
         pickerConfiguration = getArguments().getParcelable("pickerConfig");
 
         iImagePickerResult = pickerConfiguration.getImagePickerResult();
-        imagePicker.setiImagePickerResult(iImagePickerResult);
+        imagePicker.setImagePickerResult(iImagePickerResult);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = ((AppCompatActivity) context).getLayoutInflater();
 
@@ -98,7 +99,7 @@ public class ImagePickerDialog extends DialogFragment {
                                             imagePicker.startGallary();
                                             break;
                                         case 2:
-                                            dismiss();
+                                            ImagePickerDialog.this.dismiss();
                                             if (pickerDialogListener != null)
                                                 pickerDialogListener.onCancelClick();
                                             break;

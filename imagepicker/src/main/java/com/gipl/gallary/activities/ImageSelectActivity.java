@@ -183,17 +183,6 @@ public class ImageSelectActivity extends HelperActivity {
         executors.shutdown();
     }
 
-//    private void orientationBasedUI(int orientation) {
-//        final WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
-//        final DisplayMetrics metrics = new DisplayMetrics();
-//        windowManager.getDefaultDisplay().getMetrics(metrics);
-//
-//        if (adapter != null) {
-//            int size = orientation == Configuration.ORIENTATION_PORTRAIT ? metrics.widthPixels / 3 : metrics.widthPixels / 5;
-//            adapter.setLayoutParams(size);
-//        }
-//        gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 3 : 5);
-//    }
 
     @Override
     protected void onDestroy() {
@@ -337,8 +326,11 @@ public class ImageSelectActivity extends HelperActivity {
                     if (file.exists()) {
                         images.add(new Image(id, name, path, isSelected));
                     }
-
+                    if (images.size()==20){
+                        imageMutableLiveData.postValue(images);
+                    }
                 } while (cursor.moveToPrevious());
+
                 imageMutableLiveData.postValue(images);
             }
             cursor.close();

@@ -2,6 +2,7 @@ package com.gipl.imagepicker;
 
 import android.Manifest;
 import android.app.Activity;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -52,65 +53,27 @@ public class ImagePicker {
     private IImagePickerResult iImagePickerResult;
     private String sImgPath = "";
     private boolean isEnableMultiSelect;
-
-    public void setnMultiSelectCount(int nMultiSelectCount) {
-        this.nMultiSelectCount = nMultiSelectCount;
-    }
-
     private int nMultiSelectCount = 1;
-
-    public ImagePicker(Context activity) {
+    ImagePicker(Context activity) {
         this.activity = activity;
     }
 
-    public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
-        ExifInterface ei = new ExifInterface(image_absolute_path);
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                return rotate(bitmap, 90);
-
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                return rotate(bitmap, 180);
-
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                return rotate(bitmap, 270);
-
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                return flip(bitmap, true, false);
-
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                return flip(bitmap, false, true);
-
-            default:
-                return bitmap;
-        }
+    void setnMultiSelectCount(int nMultiSelectCount) {
+        this.nMultiSelectCount = nMultiSelectCount;
     }
 
-    public static Bitmap rotate(Bitmap bitmap, float degrees) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    public static Bitmap flip(Bitmap bitmap, boolean horizontal, boolean vertical) {
-        Matrix matrix = new Matrix();
-        matrix.preScale(horizontal ? -1 : 1, vertical ? -1 : 1);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    public ImagePicker setStoreInMyPath(boolean fStoreInMyPath) {
+    ImagePicker setStoreInMyPath(boolean fStoreInMyPath) {
         this.fStoreInMyPath = fStoreInMyPath;
         return this;
     }
 
-    public ImagePicker setDIRECTORY(String DIRECTORY) {
+    ImagePicker setDIRECTORY(String DIRECTORY) {
         this.DIRECTORY = DIRECTORY;
         return this;
     }
 
-    public ImagePicker setIMAGE_PATH(String IMAGE_PATH) {
+    ImagePicker setIMAGE_PATH(String IMAGE_PATH) {
         this.IMAGE_PATH = IMAGE_PATH;
         return this;
     }
@@ -121,7 +84,7 @@ public class ImagePicker {
      *
      * @return String :  return complete image path if image path data is provided
      */
-    public void openCamera() {
+    void openCamera() {
         try {
             if ((ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
                     == PackageManager.PERMISSION_GRANTED)
@@ -165,7 +128,7 @@ public class ImagePicker {
         }
     }
 
-    public void startGallary() {
+    void startGallary() {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
             if (isEnableMultiSelect) {
@@ -193,7 +156,7 @@ public class ImagePicker {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
+    void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
         String sPath;
         if (resultCode == RESULT_OK) {
             if (requestCode == CAMERA_REQUEST) {
@@ -221,22 +184,28 @@ public class ImagePicker {
             }
             if (requestCode == ConstantsCustomGallery.REQUEST_CODE && data != null) {
                 //The array list has the image paths of the selected images
-                try {
-                    Bitmap bitmap;
-                    Uri uri;
-                    ArrayList<Image> imagesList = data.getParcelableArrayListExtra(ConstantsCustomGallery.INTENT_EXTRA_IMAGES);
-                    ArrayList<ImageResult> images = new ArrayList<>();
-                    for (int i = 0; i < imagesList.size(); i++) {
-                        uri = Uri.fromFile(new File(imagesList.get(i).path));
-                        bitmap = BitmapFactory.decodeFile(new File(imagesList.get(i).path).getAbsolutePath());
+                Executors.newSingleThreadExecutor().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Bitmap bitmap;
+                            Uri uri;
+                            ArrayList<Image> imagesList = data.getParcelableArrayListExtra(ConstantsCustomGallery.INTENT_EXTRA_IMAGES);
+                            ArrayList<ImageResult> images = new ArrayList<>();
+                            for (int i = 0; i < imagesList.size(); i++) {
+                                uri = Uri.fromFile(new File(imagesList.get(i).path));
+                                bitmap = BitmapFactory.decodeFile(new File(imagesList.get(i).path).getAbsolutePath());
 //                            bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
-                        images.add(new ImageResult(String.valueOf(uri), bitmap));
-                    }
-                    iImagePickerResult.onReceiveImageList(images);
-                } catch (Exception e) {
-                    iImagePickerResult.onError(new ImageErrors(e.getMessage(), ImageErrors.IMAGE_PICK_CANCEL));
-                }
+                                images.add(new ImageResult(String.valueOf(uri), bitmap));
+                            }
 
+                            ((AppCompatActivity) activity).runOnUiThread(() -> iImagePickerResult.onReceiveImageList(images));
+
+                        } catch (Exception e) {
+                            ((AppCompatActivity) activity).runOnUiThread(() -> iImagePickerResult.onError(new ImageErrors(e.getMessage(), ImageErrors.IMAGE_PICK_CANCEL)));
+                        }
+                    }
+                });
             }
 
         } else {
@@ -246,7 +215,7 @@ public class ImagePicker {
 
     }
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == CAMERA_PERMISSION_REQUEST) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -269,7 +238,7 @@ public class ImagePicker {
 
     }
 
-    public void setFragment(Fragment fragment) {
+    void setFragment(Fragment fragment) {
         this.fragment = fragment;
     }
 
@@ -291,11 +260,11 @@ public class ImagePicker {
                 CAMERA_PERMISSION_REQUEST);
     }
 
-    void setiImagePickerResult(IImagePickerResult iImagePickerResult) {
+    void setImagePickerResult(IImagePickerResult iImagePickerResult) {
         this.iImagePickerResult = iImagePickerResult;
     }
 
-    public void setEnableMultiSelect(boolean enableMultiSelect) {
+    void setEnableMultiSelect(boolean enableMultiSelect) {
         isEnableMultiSelect = enableMultiSelect;
     }
 

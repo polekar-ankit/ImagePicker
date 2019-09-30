@@ -30,6 +30,10 @@ public abstract class CustomGenericAdapter<T> extends BaseAdapter {
         return arrayList.size();
     }
 
+    public void addItem(ArrayList<T> arrayList){
+        this.arrayList.addAll(arrayList);
+    }
+
     public T getItem(int position) {
         return arrayList.get(position);
     }
