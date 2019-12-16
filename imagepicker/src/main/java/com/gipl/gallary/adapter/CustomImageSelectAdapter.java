@@ -57,7 +57,7 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
     public void addItems(ArrayList<Image> images) {
         int pos = images.size() - 1;
         this.images.addAll(images);
-        notifyItemMoved(pos, images.size() - 1);
+        notifyItemChanged(pos, images.size() - 1);
     }
 
     public void setiItemClickListener(IItemClickListener iItemClickListener) {

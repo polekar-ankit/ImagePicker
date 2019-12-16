@@ -81,6 +81,7 @@ public class ImageSelectActivity extends HelperActivity {
         imageMutableLiveData.observe(this, new Observer<ArrayList<Image>>() {
             @Override
             public void onChanged(@Nullable ArrayList<Image> images) {
+                Log.d("image file: ", "received");
                 adapter.addItems(images);
             }
         });
@@ -321,10 +322,16 @@ public class ImageSelectActivity extends HelperActivity {
                     }
 
                     if (file.exists()) {
-                        if (file.length() > 0)
-                            images.add(new Image(id, name, path, isSelected));
+//                        if (file.length() > 0) {
+                        images.add(new Image(id, name, path, isSelected));
+//                        }
                     }
-                    if (images.size() == 20) {
+                    if (cursor.getCount() < 20) {
+                        if (images.size() == cursor.getCount()) {
+                            Log.d("image file: ", "posted");
+                            imageMutableLiveData.postValue(images);
+                        }
+                    } else if (images.size() == 20) {
                         imageMutableLiveData.postValue(images);
                     }
                 } while (cursor.moveToPrevious());
