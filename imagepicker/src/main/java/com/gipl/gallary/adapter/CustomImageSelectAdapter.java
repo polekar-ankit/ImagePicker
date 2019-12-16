@@ -1,8 +1,11 @@
 package com.gipl.gallary.adapter;
 
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +15,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.gipl.gallary.helpers.ConstantsCustomGallery;
 import com.gipl.gallary.models.Image;
 import com.gipl.imagepicker.R;
@@ -26,6 +33,11 @@ import java.util.ArrayList;
  */
 public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSelectAdapter.ViewHolder> {
     protected int size = 0;
+    private RequestOptions requestOptions = new RequestOptions()
+            .dontAnimate()
+            .override(200, 200)
+            .placeholder(R.color.colorAccent)
+            .priority(Priority.IMMEDIATE);
     private ArrayList<Image> images = new ArrayList<>();
     private int countSelected;
     private IItemClickListener iItemClickListener;
@@ -94,19 +106,27 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
             viewHolder.container.setForeground(null);
         }
 
-        Uri uri = Uri.fromFile(new File(images.get(position).path));
+//        Uri uri = Uri.fromFile(new File(images.get(position).path));
 //
 //        viewHolder.imageView.setImageURI(uri);
 
-        RequestOptions requestOptions = new RequestOptions()
-                .dontAnimate()
-                .override(200, 200)
-                .placeholder(R.color.colorAccent)
-                .priority(Priority.IMMEDIATE);
 
         Glide.with(viewHolder.imageView.getContext())
-                .load(uri)
+                .load(images.get(position).path)
                 .apply(requestOptions)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        Log.d("Albm","image path"+model);
+                        e.logRootCauses("root cause");
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })
                 .into(viewHolder.imageView);
 
         viewHolder.itemView.setOnClickListener(v -> {

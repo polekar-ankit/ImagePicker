@@ -5,13 +5,10 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -324,9 +321,10 @@ public class ImageSelectActivity extends HelperActivity {
                     }
 
                     if (file.exists()) {
-                        images.add(new Image(id, name, path, isSelected));
+                        if (file.length() > 0)
+                            images.add(new Image(id, name, path, isSelected));
                     }
-                    if (images.size()==20){
+                    if (images.size() == 20) {
                         imageMutableLiveData.postValue(images);
                     }
                 } while (cursor.moveToPrevious());
