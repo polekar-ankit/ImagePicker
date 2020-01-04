@@ -51,7 +51,6 @@ public class ImagePickerDialog extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         imagePicker = new ImagePicker(context)
-                .setDIRECTORY("AppSample")
                 .setIMAGE_PATH("AppImages")
                 .setStoreInMyPath(true);
         imagePicker.setFragment(this);
@@ -88,22 +87,19 @@ public class ImagePickerDialog extends DialogFragment {
         } else
             builder.setTitle("Image Picker")
                     .setItems(R.array.dialog_menus_image_picker,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int position) {
-                                    switch (position) {
-                                        case 0:
-                                            imagePicker.openCamera();
-                                            break;
-                                        case 1:
-                                            imagePicker.startGallary();
-                                            break;
-                                        case 2:
-                                            ImagePickerDialog.this.dismiss();
-                                            if (pickerDialogListener != null)
-                                                pickerDialogListener.onCancelClick();
-                                            break;
-                                    }
+                            (dialogInterface, position) -> {
+                                switch (position) {
+                                    case 0:
+                                        imagePicker.openCamera();
+                                        break;
+                                    case 1:
+                                        imagePicker.startGallary();
+                                        break;
+                                    case 2:
+                                        ImagePickerDialog.this.dismiss();
+                                        if (pickerDialogListener != null)
+                                            pickerDialogListener.onCancelClick();
+                                        break;
                                 }
                             });
 

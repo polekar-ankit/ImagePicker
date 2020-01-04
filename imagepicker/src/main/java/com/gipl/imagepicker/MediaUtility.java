@@ -53,9 +53,12 @@ public class MediaUtility {
             }
         }
 
-        static File createImageFile(String SECURE_DIR, String IMAGE_PATH) throws IOException {
+        // Below method SECURE_DIR is remove because from android version 10 for app storage privacy
+        // change app image store location has been change to app private directory
+        static File createImageFile(Context context,/*String SECURE_DIR,*/ String IMAGE_PATH) throws IOException {
             String sImageFileName = "JPEG_" + UUID.randomUUID().toString() + "_";
-            File storageDir = new File(Environment.getExternalStorageDirectory() + "/" + SECURE_DIR + "/" + IMAGE_PATH);
+//            File storageDir = new File(Environment.getExternalStorageDirectory() + "/" + SECURE_DIR + "/" + IMAGE_PATH);
+            File storageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) /*+ "/" + SECURE_DIR*/ + "/" + IMAGE_PATH);
             if (!storageDir.exists()) {
                 storageDir.mkdirs();
             }

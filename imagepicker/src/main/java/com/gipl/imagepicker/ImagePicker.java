@@ -46,7 +46,7 @@ public class ImagePicker {
     private static final int CAMERA_PERMISSION_REQUEST = 123;
     private static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
     private boolean fStoreInMyPath = false;
-    private String DIRECTORY = "";
+//    private String DIRECTORY = "";
     private String IMAGE_PATH = "";
     private Context activity;
     private Fragment fragment;
@@ -68,10 +68,10 @@ public class ImagePicker {
         return this;
     }
 
-    ImagePicker setDIRECTORY(String DIRECTORY) {
-        this.DIRECTORY = DIRECTORY;
-        return this;
-    }
+//    ImagePicker setDIRECTORY(String DIRECTORY) {
+//        this.DIRECTORY = DIRECTORY;
+//        return this;
+//    }
 
     ImagePicker setIMAGE_PATH(String IMAGE_PATH) {
         this.IMAGE_PATH = IMAGE_PATH;
@@ -90,7 +90,8 @@ public class ImagePicker {
                     == PackageManager.PERMISSION_GRANTED)
                     &&
                     ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            == PackageManager.PERMISSION_GRANTED) {
+                            == PackageManager.PERMISSION_GRANTED
+            ) {
                 startCameraIntent();
             } else {
                 startPermissonRequest();
@@ -107,7 +108,7 @@ public class ImagePicker {
             if (fStoreInMyPath) {
                 if (isDirAndPathProvided()) {
                     File photoFile;
-                    photoFile = MediaUtility.FILE.createImageFile(DIRECTORY, IMAGE_PATH);
+                    photoFile = MediaUtility.FILE.createImageFile(activity, IMAGE_PATH);
                     sImgPath = photoFile.getAbsolutePath();
                     Uri photoURI;
                     if (Build.VERSION.SDK_INT >= 24) {
@@ -152,7 +153,7 @@ public class ImagePicker {
     }
 
     private boolean isDirAndPathProvided() {
-        return !DIRECTORY.isEmpty() && !IMAGE_PATH.isEmpty();
+        return /*!DIRECTORY.isEmpty() &&*/ !IMAGE_PATH.isEmpty();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
