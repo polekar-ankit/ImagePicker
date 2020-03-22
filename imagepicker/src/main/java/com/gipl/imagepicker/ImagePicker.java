@@ -46,7 +46,7 @@ public class ImagePicker {
     private static final int CAMERA_PERMISSION_REQUEST = 123;
     private static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
     private boolean fStoreInMyPath = false;
-//    private String DIRECTORY = "";
+    //    private String DIRECTORY = "";
     private String IMAGE_PATH = "";
     private Context activity;
     private Fragment fragment;
@@ -54,6 +54,7 @@ public class ImagePicker {
     private String sImgPath = "";
     private boolean isEnableMultiSelect;
     private int nMultiSelectCount = 1;
+
     ImagePicker(Context activity) {
         this.activity = activity;
     }
@@ -129,17 +130,26 @@ public class ImagePicker {
         }
     }
 
+    private void startCustomGallary() {
+        Intent intent = new Intent(activity, AlbumSelectActivity.class);
+        intent.putExtra(ConstantsCustomGallery.INTENT_EXTRA_LIMIT, nMultiSelectCount);
+        ((AppCompatActivity) activity).startActivityForResult(intent, ConstantsCustomGallery.REQUEST_CODE);
+    }
+
     void startGallary() {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
             if (isEnableMultiSelect) {
-                Intent intent = new Intent(activity, AlbumSelectActivity.class);
-                intent.putExtra(ConstantsCustomGallery.INTENT_EXTRA_LIMIT, nMultiSelectCount);
-                ((AppCompatActivity) activity).startActivityForResult(intent, ConstantsCustomGallery.REQUEST_CODE);
+                startCustomGallary();
             } else {
                 Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                ((AppCompatActivity) activity).startActivityForResult(intent, PROFILE_PHOTO);
+                if (intent.resolveActivity(activity.getPackageManager()) == null) {
+                    nMultiSelectCount = 1;
+                    startCustomGallary();
+                } else {
+                    intent.setType("image/*");
+                    ((AppCompatActivity) activity).startActivityForResult(intent, PROFILE_PHOTO);
+                }
             }
         } else {
             startWriteStorageAccessPersmissionRequest();
