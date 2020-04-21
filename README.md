@@ -78,7 +78,7 @@ also Override onRequestPermissionsResult and call onRequestPermissionsResult met
 #### 7.setPickerDialogListener(ImagePicker.IPickerDialogListener pickerDialogListener):
         use this listener  to track cancel event of dialog 
 #### 8.setImagePickerResult(ImagePicker.IImagePickerResult imagePickerResult):
-		use this listener to get image selection result in following method 
+	use this listener to get image selection result in following method 
          a)onImageGet : get image selection result if enableMultiSelect is false 
          b)onError: return error thrown by image picker dialog 
          c)onReceiveImageList: get list of images if enableMultiSelect is true  
