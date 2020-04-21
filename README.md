@@ -1,8 +1,16 @@
 # ImagePicker
+Easy to use and configurable library to Pick an image from the Gallery or Capture image using Camera.
 
-This is the repository for Android ImagePicker. It contains source code, help and one sample app to test the functionality. Include it in your Android project to provide an image picker to select an image from phone gallery or to take picture using camera.
+It contains source code, help and one sample app to test the functionality.
+To simplify the image pick/capture option we have created ImagePicker library. I hope it will be useful to all.
 
-### Installing
+Features:
+* Pick Gallary Image
+* Capture Camera Image
+* Retrive Image Result as File Path as String or Uri object and Bitmap too.
+* Handle Runtime Permission for Camera and Storage
+
+### Installation
 Add following line to gradle file.
 ```
 allprojects {
@@ -12,7 +20,7 @@ allprojects {
         }
    }
    dependencies {
-        implementation 'com.github.polekar-ankit:ImagePicker:1.2'
+        implementation 'com.github.polekar-ankit:ImagePicker:2.2'
    }
 ```
 
@@ -41,14 +49,41 @@ public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
         int count =  imageResults.size();
 }
 ```
+Override onActivityResult method call onActivityResult method of image picker dialog 
+```
+@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        imagePickerDialog.onActivityResult(requestCode, resultCode, data);
+    }
+```
+also Override onRequestPermissionsResult and call onRequestPermissionsResult method of image picker dialog to manage permission related activity.You don't need to request any permission. Library takes care of that. 
+```
+@Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        imagePickerDialog.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+```
+## properties of PickerConfiguration
 
+#### 1.setTextColor(int colorCode)
+#### 2.setIconColor(int colorCode)
+#### 3.setBackGroundColor(int colorCode)
+#### 4.setIsDialogCancelable(boolean isCancelable): 
+        use to set cancelable property of  image picker dialog 
+#### 5.enableMultiSelect(boolean enableMultiSelect)
+#### 6.setMultiSelectImageCount(int multiSelectImageCount):
+        if enableMultiSelect property set true then set multi select count
+#### 7.setPickerDialogListener(ImagePicker.IPickerDialogListener pickerDialogListener):
+        use this listener  to track cancel event of dialog 
+#### 8.setImagePickerResult(ImagePicker.IImagePickerResult imagePickerResult):
+		use this listener to get image selection result in following method 
+         a)onImageGet : get image selection result if enableMultiSelect is false 
+         b)onError: return error thrown by image picker dialog 
+         c)onReceiveImageList: get list of images if enableMultiSelect is true  
+        
 ## Authors
 
 * **Ankit Polekar**
 * **Suyash Raikar**
-
-
-
-
-  
-  

@@ -75,12 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 .setSetCustomDialog(true);
 
 
-        findViewById(R.id.btn_open_camera).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
-            }
-        });
+        findViewById(R.id.btn_open_camera).setOnClickListener(view -> imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true)));
 
 
         findViewById(R.id.btn_open_picker).setOnClickListener(view -> {
@@ -95,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         imagePickerDialog.onActivityResult(requestCode, resultCode, data);
-
     }
 
     @Override
@@ -126,11 +120,8 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
-            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+            alertDialog.setNegativeButton("Cancel", (dialogInterface, i) -> {
 
-                }
             });
 
             alertDialog.show();
