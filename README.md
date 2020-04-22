@@ -82,8 +82,11 @@ also Override onRequestPermissionsResult and call onRequestPermissionsResult met
          a)onImageGet : get image selection result if enableMultiSelect is false 
          b)onError: return error thrown by image picker dialog 
          c)onReceiveImageList: get list of images if enableMultiSelect is true  
-        
-## Authors
+### ScreenShot	 	 
+<img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183237.png" alt="alt text" width="200" height="400"> <img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183322.png" alt="alt text" width="200" height="400">
 
+Default Dialog &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Customise Dialog
+
+## Authors
 * **Ankit Polekar**
 * **Suyash Raikar**
