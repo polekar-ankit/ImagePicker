@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Process;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -36,7 +37,8 @@ import java.util.concurrent.Executors;
  * Created by MyInnos on 03-11-2016.
  */
 public class ImageSelectActivity extends HelperActivity {
-    private final String[] projection = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA};
+    private final String[] projection = new String[]{MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA};
     MutableLiveData<ArrayList<Image>> imageMutableLiveData = new MutableLiveData<>();
     //    private ContentObserver observer;
     MutableLiveData<Message> messageMutableLiveData = new MutableLiveData<>();
@@ -78,13 +80,9 @@ public class ImageSelectActivity extends HelperActivity {
         adapter = new CustomImageSelectAdapter();
         gridView.setAdapter(adapter);
 
-        imageMutableLiveData.observe(this, new Observer<ArrayList<Image>>() {
-            @Override
-            public void onChanged(@Nullable ArrayList<Image> images) {
-                Log.d("image file: ", "received");
-                adapter.addItems(images);
-            }
-        });
+        checkPermission();
+
+        imageMutableLiveData.observe(this, images -> adapter.addItems(images));
         messageMutableLiveData.observe(this, this::processMessage);
         adapter.setiItemClickListener(image -> {
             tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));
@@ -121,6 +119,7 @@ public class ImageSelectActivity extends HelperActivity {
             }
 
             case ConstantsCustomGallery.FETCH_STARTED: {
+                adapter.getImages().clear();
                 loader.setVisibility(View.VISIBLE);
                 gridView.setVisibility(View.VISIBLE);
                 break;
@@ -169,10 +168,10 @@ public class ImageSelectActivity extends HelperActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadImages();
+
 //        getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, observer);
 
-        checkPermission();
+
     }
 
     @Override
@@ -215,9 +214,11 @@ public class ImageSelectActivity extends HelperActivity {
         //overridePendingTransition(abc_fade_in, abc_fade_out);
     }
 
+
     private void loadImages() {
         executors = Executors.newSingleThreadExecutor();
         executors.submit(new ImageLoaderRunnable());
+
     }
 
 
@@ -285,20 +286,16 @@ public class ImageSelectActivity extends HelperActivity {
             }
 
             Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?", new String[]{album}, MediaStore.Images.Media.DATE_ADDED);
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?",
+                    new String[]{album}, MediaStore.Images.Media.DATE_ADDED);
             if (cursor == null) {
                 sendMessage(ConstantsCustomGallery.ERROR);
                 return;
             }
 
-            /*
-            In case this runnable is executed to onChange calling loadImages,
-            using countSelected variable can result in a race condition. To avoid that,
-            tempCountSelected keeps track of number of selected images. On handling
-            FETCH_COMPLETED message, countSelected is assigned value of tempCountSelected.
-             */
             int tempCountSelected = 0;
-
+            int lastSendPos = 0;
+            int counter = 0;
             if (cursor.moveToLast()) {
                 ArrayList<Image> images = new ArrayList<>();
                 do {
@@ -322,21 +319,24 @@ public class ImageSelectActivity extends HelperActivity {
                     }
 
                     if (file.exists()) {
-//                        if (file.length() > 0) {
                         images.add(new Image(id, name, path, isSelected));
-//                        }
+                        counter++;
                     }
                     if (cursor.getCount() < 20) {
                         if (images.size() == cursor.getCount()) {
-                            Log.d("image file: ", "posted");
                             imageMutableLiveData.postValue(images);
                         }
-                    } else if (images.size() == 20) {
-                        imageMutableLiveData.postValue(images);
+                    } else if (counter == 20) {
+                        int lastPos = images.size();
+                        ArrayList<Image> sendArr = new ArrayList<>(images.subList(lastSendPos, lastPos));
+                        imageMutableLiveData.postValue(sendArr);
+                        SystemClock.sleep(500);
+                        counter = 0;
+                        lastSendPos = lastPos;
                     }
                 } while (cursor.moveToPrevious());
 
-                imageMutableLiveData.postValue(images);
+//                imageMutableLiveData.postValue(images);
             }
             cursor.close();
             sendMessage(ConstantsCustomGallery.FETCH_COMPLETED, tempCountSelected);

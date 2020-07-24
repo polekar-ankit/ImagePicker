@@ -207,7 +207,8 @@ public class ImagePicker {
                                 uri = Uri.fromFile(new File(imagesList.get(i).path));
                                 bitmap = BitmapFactory.decodeFile(new File(imagesList.get(i).path).getAbsolutePath());
 //                            bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
-                                images.add(new ImageResult(String.valueOf(uri), bitmap));
+//                                images.add(new ImageResult(String.valueOf(uri), bitmap));
+                                images.add(new ImageResult(imagesList.get(i).path, bitmap));
                             }
 
                             ((AppCompatActivity) activity).runOnUiThread(() -> iImagePickerResult.onReceiveImageList(images));

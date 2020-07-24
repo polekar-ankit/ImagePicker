@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 .setBackGroundColor(Color.parseColor("#ffffff"))
                 .setIsDialogCancelable(false)
                 .enableMultiSelect(true)
-                .setMultiSelectImageCount(7)
+                .setMultiSelectImageCount(2)
                 .setPickerDialogListener(new PickerListener() {
                     @Override
                     public void onCancelClick() {
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
                         super.onReceiveImageList(imageResults);
                         int count =  imageResults.size();
+                        setImagesList(imageResults);
                         Toast.makeText(MainActivity.this, "Found image list with " + count+ " images Successfully added", Toast.LENGTH_SHORT).show();
                     }
                 })
@@ -84,6 +86,16 @@ public class MainActivity extends AppCompatActivity {
             imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(),
                     pickerConfiguration.setSetCustomDialog(false));
         });
+    }
+
+
+    public void setImagesList(ArrayList<ImageResult> imagesList) {
+            for (ImageResult imageResult : imagesList) {
+                File file =  new File(imageResult.getsImagePath());
+                if (file.exists()){
+                    Log.d("Files","Exits" + imageResult.getsImagePath());
+                }
+            }
     }
 
     @Override
