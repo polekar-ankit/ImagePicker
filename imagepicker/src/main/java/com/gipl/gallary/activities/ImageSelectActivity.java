@@ -307,6 +307,7 @@ public class ImageSelectActivity extends HelperActivity {
                     String name = cursor.getString(cursor.getColumnIndex(projection[1]));
                     String path = cursor.getString(cursor.getColumnIndex(projection[2]));
                     boolean isSelected = selectedImages.contains(id);
+
                     if (isSelected) {
                         tempCountSelected++;
                     }
