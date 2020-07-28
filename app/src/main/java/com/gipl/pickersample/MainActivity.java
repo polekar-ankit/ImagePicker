@@ -77,12 +77,16 @@ public class MainActivity extends AppCompatActivity {
                 .setSetCustomDialog(true);
 
 
-        findViewById(R.id.btn_open_camera).setOnClickListener(view -> imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true)));
+        findViewById(R.id.btn_open_camera).setOnClickListener(view -> {
+            pickerConfiguration.enableMultiSelect(true);
+            imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
+        });
 
 
         findViewById(R.id.btn_open_picker).setOnClickListener(view -> {
             if (imagePickerDialog != null && imagePickerDialog.isVisible())
                 imagePickerDialog.dismiss();
+            pickerConfiguration.enableMultiSelect(false);
             imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(),
                     pickerConfiguration.setSetCustomDialog(false));
         });

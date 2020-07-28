@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
@@ -54,10 +55,10 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
         this.countSelected = countSelected;
     }
 
-    public void addItems(ArrayList<Image> images) {
+    public void addItems(ArrayList<Image> newImages) {
         int pos = images.size() - 1;
-        this.images.addAll(images);
-        notifyItemChanged(pos, images.size() - 1);
+        this.images.addAll(newImages);
+        notifyItemChanged(pos, newImages.size() - 1);
     }
 
     public void setiItemClickListener(IItemClickListener iItemClickListener) {
@@ -67,7 +68,6 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.grid_view_image_select, viewGroup, false);
         return new ViewHolder(view);
     }
@@ -75,9 +75,11 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
 
     public ArrayList<Image> getSelected() {
         ArrayList<Image> selectedImages = new ArrayList<>();
-        for (int i = 0, l = images.size(); i < l; i++) {
-            if (images.get(i).isSelected) {
-                selectedImages.add(images.get(i));
+        for (int i = 0; i < images.size(); i++) {
+            Image image = images.get(i);
+            if (image.isSelected) {
+                selectedImages.add(image);
+                Log.d("images",image.name+" "+i);
             }
         }
         return selectedImages;
@@ -87,12 +89,9 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
         this.size = size;
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
-//        viewHolder.imageView.getLayoutParams().width = size;
-//        viewHolder.imageView.getLayoutParams().height = size;
-//
-//        viewHolder.view.getLayoutParams().width = size;
         if (size != 0)
             size = viewHolder.view.getLayoutParams().width;
         viewHolder.view.getLayoutParams().height = size;
@@ -106,27 +105,9 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
             viewHolder.container.setForeground(null);
         }
 
-//        Uri uri = Uri.fromFile(new File(images.get(position).path));
-//
-//        viewHolder.imageView.setImageURI(uri);
-
-
         Glide.with(viewHolder.imageView.getContext())
                 .load(images.get(position).path)
                 .apply(requestOptions)
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        Log.d("Albm","image path"+model);
-                        e.logRootCauses("root cause");
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        return false;
-                    }
-                })
                 .into(viewHolder.imageView);
 
         viewHolder.itemView.setOnClickListener(v -> {
@@ -153,7 +134,6 @@ public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSe
     }
 
     public void deselectAll() {
-
         for (int i = 0, l = images.size(); i < l; i++) {
             images.get(i).isSelected = false;
         }

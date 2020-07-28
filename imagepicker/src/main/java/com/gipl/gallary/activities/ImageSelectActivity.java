@@ -2,7 +2,6 @@ package com.gipl.gallary.activities;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -11,7 +10,6 @@ import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -323,17 +321,22 @@ public class ImageSelectActivity extends HelperActivity {
                         images.add(new Image(id, name, path, isSelected));
                         counter++;
                     }
-                    if (cursor.getCount() < 20) {
-                        if (images.size() == cursor.getCount()) {
-                            imageMutableLiveData.postValue(images);
-                        }
-                    } else if (counter == 20) {
+//                    if (cursor.getCount() < 20) {
+//                        if (images.size() == cursor.getCount()) {
+//                            imageMutableLiveData.postValue(images);
+//                        }
+//                    } else
+                    if (counter == 20) {
                         int lastPos = images.size();
                         ArrayList<Image> sendArr = new ArrayList<>(images.subList(lastSendPos, lastPos));
                         imageMutableLiveData.postValue(sendArr);
                         SystemClock.sleep(500);
                         counter = 0;
                         lastSendPos = lastPos;
+                    } else if (images.size() == cursor.getCount()) {
+                        int lastPos = images.size();
+                        ArrayList<Image> sendArr = new ArrayList<>(images.subList(lastSendPos, lastPos));
+                        imageMutableLiveData.postValue(sendArr);
                     }
                 } while (cursor.moveToPrevious());
 
