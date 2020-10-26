@@ -138,7 +138,7 @@ public class ImageSelectActivity extends HelperActivity {
                             hence update action mode title
                              */
 
-                adapter.setCountSelected(message.arg1);
+               //adapter.setCountSelected(message.arg1);
                 if (adapter.getCountSelected() > 0) {
                     //actionMode.setTitle(countSelected + " " + getString(R.string.selected));
                     tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));

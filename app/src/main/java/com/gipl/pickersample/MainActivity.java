@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 .setBackGroundColor(Color.parseColor("#ffffff"))
                 .setIsDialogCancelable(false)
                 .enableMultiSelect(true)
-                .setMultiSelectImageCount(2)
+                .setMultiSelectImageCount(3)
                 .setPickerDialogListener(new PickerListener() {
                     @Override
                     public void onCancelClick() {
