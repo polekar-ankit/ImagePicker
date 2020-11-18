@@ -59,7 +59,6 @@ public class ImagePicker {
         this.activity = activity;
     }
 
-
     void setnMultiSelectCount(int nMultiSelectCount) {
         this.nMultiSelectCount = nMultiSelectCount;
     }

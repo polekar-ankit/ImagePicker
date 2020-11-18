@@ -100,6 +100,8 @@ public class ImageSelectActivity extends HelperActivity {
         liFinish.setOnClickListener(v -> {
             if (tvSelectCount.getVisibility() == View.VISIBLE) {
                 adapter.deselectAll();
+                finish();
+                tvSelectCount.setText("");
             } else {
                 finish();
                 //overridePendingTransition(ac, abc_fade_out);
@@ -247,9 +249,11 @@ public class ImageSelectActivity extends HelperActivity {
     public void onBackPressed() {
         if (adapter.getCountSelected() > 0) {
             tvProfile.setVisibility(View.VISIBLE);
+            tvSelectCount.setText("");
             tvAdd.setVisibility(View.GONE);
             tvSelectCount.setVisibility(View.GONE);
             adapter.deselectAll();
+            super.onBackPressed();
         } else {
             super.onBackPressed();
             //overridePendingTransition(abc_fade_in, abc_fade_out);
