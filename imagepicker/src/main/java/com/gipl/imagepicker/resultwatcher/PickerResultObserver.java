@@ -24,7 +24,7 @@ import static com.gipl.imagepicker.ImagePicker.STORAGE_ACCESS_PERMISSION_REQUEST
 import static com.gipl.imagepicker.utility.MediaUtility.CAMERA_REQUEST;
 import static com.gipl.imagepicker.utility.MediaUtility.PROFILE_PHOTO;
 
-public class PikcerResultOberver implements DefaultLifecycleObserver {
+public class PickerResultObserver implements DefaultLifecycleObserver {
 
     private final ActivityResultRegistry mRegistry;
     private ActivityResultLauncher<Intent> mGetContent;
@@ -34,7 +34,7 @@ public class PikcerResultOberver implements DefaultLifecycleObserver {
     private ActivityResultLauncher<String> mGetGalleryPermission;
     private ImagePicker imagePicker;
 
-    public PikcerResultOberver(ActivityResultRegistry registry) {
+    public PickerResultObserver(ActivityResultRegistry registry) {
         this.mRegistry = registry;
     }
 
