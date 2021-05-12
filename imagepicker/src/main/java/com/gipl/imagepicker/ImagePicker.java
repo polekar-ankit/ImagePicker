@@ -1,7 +1,6 @@
 package com.gipl.imagepicker;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,11 +10,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
@@ -24,7 +21,7 @@ import com.gipl.gallary.models.Image;
 import com.gipl.imagepicker.exceptions.ImageErrors;
 import com.gipl.imagepicker.listener.IImagePickerResult;
 import com.gipl.imagepicker.models.ImageResult;
-import com.gipl.imagepicker.resultwatcher.PikcerResultOberver;
+import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 import com.gipl.imagepicker.utility.MediaUtility;
 
 import java.io.File;
@@ -51,7 +48,7 @@ public class ImagePicker {
     private String sImgPath = "";
     private boolean isEnableMultiSelect;
     private int nMultiSelectCount = 1;
-    private PikcerResultOberver pikcerResultOberver;
+    private PickerResultObserver pickerResultObserver;
 
     ImagePicker(Context activity) {
         this.activity = activity;
@@ -87,7 +84,7 @@ public class ImagePicker {
             ) {
                 startCameraIntent();
             } else {
-                pikcerResultOberver.startPermissionForCamera();
+                pickerResultObserver.startPermissionForCamera();
             }
 
         } catch (Exception ex) {
@@ -122,8 +119,8 @@ public class ImagePicker {
         }
     }
 
-    public void setPikcerResultOberver(PikcerResultOberver pikcerResultOberver) {
-        this.pikcerResultOberver = pikcerResultOberver;
+    public void setPikcerResultOberver(PickerResultObserver pickerResultObserver) {
+        this.pickerResultObserver = pickerResultObserver;
     }
 
     void startGallary() {
@@ -131,21 +128,21 @@ public class ImagePicker {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
             if (isEnableMultiSelect) {
-                pikcerResultOberver.startCustomGallery(nMultiSelectCount);
+                pickerResultObserver.startCustomGallery(nMultiSelectCount);
             } else {
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 if (intent.resolveActivity(activity.getPackageManager()) == null) {
                     nMultiSelectCount = 1;
-                    pikcerResultOberver.startCustomGallery(nMultiSelectCount);
+                    pickerResultObserver.startCustomGallery(nMultiSelectCount);
                 } else {
                     intent.setType("image/*");
-                    pikcerResultOberver.startSystemGallery(intent);
+                    pickerResultObserver.startSystemGallery(intent);
 //                    ((AppCompatActivity) activity).startActivityForResult(intent, PROFILE_PHOTO);
                 }
             }
         } else {
 
-            pikcerResultOberver.startPermissionForGallery();
+            pickerResultObserver.startPermissionForGallery();
         }
     }
 
@@ -242,7 +239,7 @@ public class ImagePicker {
 
 
     private void openCamera(Intent takePictureIntent) {
-        pikcerResultOberver.startCamera(takePictureIntent);
+        pickerResultObserver.startCamera(takePictureIntent);
     }
 
 

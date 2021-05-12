@@ -22,7 +22,7 @@ import com.gipl.imagepicker.models.ImageResult;
 import com.gipl.imagepicker.models.PickerConfiguration;
 import com.gipl.imagepicker.listener.PickerListener;
 import com.gipl.imagepicker.listener.PickerResult;
-import com.gipl.imagepicker.resultwatcher.PikcerResultOberver;
+import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView cropImageView;
-    private ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this, new PikcerResultOberver(getActivityResultRegistry()));
+    private ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this, new PickerResultObserver(getActivityResultRegistry()));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

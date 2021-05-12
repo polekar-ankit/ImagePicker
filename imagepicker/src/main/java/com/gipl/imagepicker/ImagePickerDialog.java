@@ -20,7 +20,7 @@ import androidx.fragment.app.FragmentManager;
 import com.gipl.imagepicker.listener.IImagePickerResult;
 import com.gipl.imagepicker.listener.IPickerDialogListener;
 import com.gipl.imagepicker.models.PickerConfiguration;
-import com.gipl.imagepicker.resultwatcher.PikcerResultOberver;
+import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 
 /**
  * Created by User on 25-Jan-19
@@ -33,13 +33,13 @@ public class ImagePickerDialog extends DialogFragment {
     private PickerConfiguration pickerConfiguration;
 
 
-    public ImagePickerDialog(Context context, PikcerResultOberver pikcerResultOberver) {
+    public ImagePickerDialog(Context context, PickerResultObserver pickerResultObserver) {
         imagePicker = new ImagePicker(context)
                 .setIMAGE_PATH("AppImages")
                 .setStoreInMyPath(true);
-        imagePicker.setPikcerResultOberver(pikcerResultOberver);
-        pikcerResultOberver.setImagePicker(imagePicker);
-        ((AppCompatActivity) context).getLifecycle().addObserver(pikcerResultOberver);
+        imagePicker.setPikcerResultOberver(pickerResultObserver);
+        pickerResultObserver.setImagePicker(imagePicker);
+        ((AppCompatActivity) context).getLifecycle().addObserver(pickerResultObserver);
     }
 
     public void display(ImagePickerDialog ImagePickerDialog,FragmentManager fragmentManager,
