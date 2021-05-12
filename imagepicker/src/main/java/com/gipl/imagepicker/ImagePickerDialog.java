@@ -39,7 +39,7 @@ public class ImagePickerDialog extends DialogFragment {
                 .setStoreInMyPath(true);
         imagePicker.setPikcerResultOberver(pickerResultObserver);
         pickerResultObserver.setImagePicker(imagePicker);
-        ((AppCompatActivity) context).getLifecycle().addObserver(pickerResultObserver);
+        getLifecycle().addObserver(pickerResultObserver);
     }
 
     public void display(ImagePickerDialog ImagePickerDialog,FragmentManager fragmentManager,
