@@ -39,7 +39,7 @@ public class FirstFragment extends Fragment {
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imagePickerDialog = new ImagePickerDialog(requireContext(), new PickerResultObserver(requireActivity().getActivityResultRegistry()));
+        imagePickerDialog = new ImagePickerDialog(requireContext(),getLifecycle(), new PickerResultObserver(requireActivity().getActivityResultRegistry()));
     }
 
     @Override

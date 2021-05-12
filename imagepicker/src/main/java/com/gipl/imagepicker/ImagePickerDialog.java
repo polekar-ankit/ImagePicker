@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 
 import com.gipl.imagepicker.listener.IImagePickerResult;
 import com.gipl.imagepicker.listener.IPickerDialogListener;
@@ -33,13 +34,13 @@ public class ImagePickerDialog extends DialogFragment {
     private PickerConfiguration pickerConfiguration;
 
 
-    public ImagePickerDialog(Context context, PickerResultObserver pickerResultObserver) {
+    public ImagePickerDialog(Context context,Lifecycle lifecycle, PickerResultObserver pickerResultObserver) {
         imagePicker = new ImagePicker(context)
                 .setIMAGE_PATH("AppImages")
                 .setStoreInMyPath(true);
         imagePicker.setPikcerResultOberver(pickerResultObserver);
         pickerResultObserver.setImagePicker(imagePicker);
-        getLifecycle().addObserver(pickerResultObserver);
+        lifecycle.addObserver(pickerResultObserver);
     }
 
     public void display(ImagePickerDialog ImagePickerDialog,FragmentManager fragmentManager,
