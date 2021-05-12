@@ -1,11 +1,11 @@
-package com.gipl.imagepicker;
+package com.gipl.imagepicker.listener;
 
 import android.os.Parcel;
 
 /**
  * Creted by User on 18-Apr-19
  */
-public class PickerListener implements ImagePicker.IPickerDialogListener {
+public class PickerListener implements IPickerDialogListener {
     public PickerListener() {
     }
 

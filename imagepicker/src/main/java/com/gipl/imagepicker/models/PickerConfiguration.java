@@ -1,9 +1,11 @@
-package com.gipl.imagepicker;
+package com.gipl.imagepicker.models;
 
-import android.arch.lifecycle.Observer;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.gipl.imagepicker.listener.IImagePickerResult;
+import com.gipl.imagepicker.listener.IPickerDialogListener;
 
 /**
  * Creted by User on 25-Jan-19
@@ -20,8 +22,8 @@ public class PickerConfiguration implements Parcelable {
     private int cameraImageId;
     private int galleryImageId;
     private boolean isEnableMultiSelect;
-    private ImagePicker.IPickerDialogListener pickerDialogListener;
-    private ImagePicker.IImagePickerResult imagePickerResult;
+    private IPickerDialogListener pickerDialogListener;
+    private IImagePickerResult imagePickerResult;
     private String sCameraTitle;
     private String sGalleryTitle;
 
@@ -36,8 +38,8 @@ public class PickerConfiguration implements Parcelable {
         cameraImageId = in.readInt();
         galleryImageId = in.readInt();
         isEnableMultiSelect = in.readByte() != 0;
-        pickerDialogListener = in.readParcelable(ImagePicker.IPickerDialogListener.class.getClassLoader());
-        imagePickerResult = in.readParcelable(ImagePicker.IImagePickerResult.class.getClassLoader());
+        pickerDialogListener = in.readParcelable(IPickerDialogListener.class.getClassLoader());
+        imagePickerResult = in.readParcelable(IImagePickerResult.class.getClassLoader());
         sCameraTitle = in.readString();
         sGalleryTitle = in.readString();
         multiSelectImageCount = in.readInt();
@@ -94,20 +96,20 @@ public class PickerConfiguration implements Parcelable {
         return this;
     }
 
-    public ImagePicker.IImagePickerResult getImagePickerResult() {
+    public IImagePickerResult getImagePickerResult() {
         return imagePickerResult;
     }
 
-    public PickerConfiguration setImagePickerResult(ImagePicker.IImagePickerResult imagePickerResult) {
+    public PickerConfiguration setImagePickerResult(IImagePickerResult imagePickerResult) {
         this.imagePickerResult = imagePickerResult;
         return this;
     }
 
-    public ImagePicker.IPickerDialogListener getPickerDialogListener() {
+    public IPickerDialogListener getPickerDialogListener() {
         return pickerDialogListener;
     }
 
-    public PickerConfiguration setPickerDialogListener(ImagePicker.IPickerDialogListener pickerDialogListener) {
+    public PickerConfiguration setPickerDialogListener(IPickerDialogListener pickerDialogListener) {
         this.pickerDialogListener = pickerDialogListener;
         return this;
     }
@@ -121,7 +123,7 @@ public class PickerConfiguration implements Parcelable {
         return this;
     }
 
-    boolean isIsSetCustomDialog() {
+    public boolean isIsSetCustomDialog() {
         return fIsSetCustomDialog;
     }
 
@@ -130,7 +132,7 @@ public class PickerConfiguration implements Parcelable {
         return this;
     }
 
-    int getTextColor() {
+    public int getTextColor() {
         return colorCodeText;
     }
 
@@ -139,7 +141,7 @@ public class PickerConfiguration implements Parcelable {
         return this;
     }
 
-    boolean isfIsDialogCancelable() {
+    public boolean isfIsDialogCancelable() {
         return fIsDialogCancelable;
     }
 

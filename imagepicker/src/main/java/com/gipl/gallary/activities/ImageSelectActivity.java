@@ -1,7 +1,7 @@
 package com.gipl.gallary.activities;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.MutableLiveData;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -10,8 +10,8 @@ import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;

@@ -1,4 +1,4 @@
-package com.gipl.imagepicker;
+package com.gipl.imagepicker.utility;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -55,7 +55,7 @@ public class MediaUtility {
 
         // Below method SECURE_DIR is remove because from android version 10 for app storage privacy
         // change app image store location has been change to app private directory
-        static File createImageFile(Context context,/*String SECURE_DIR,*/ String IMAGE_PATH) throws IOException {
+        public static File createImageFile(Context context,/*String SECURE_DIR,*/ String IMAGE_PATH) throws IOException {
             String sImageFileName = "JPEG_" + UUID.randomUUID().toString() + "_";
 //            File storageDir = new File(Environment.getExternalStorageDirectory() + "/" + SECURE_DIR + "/" + IMAGE_PATH);
             File storageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) /*+ "/" + SECURE_DIR*/ + "/" + IMAGE_PATH);

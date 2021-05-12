@@ -1,13 +1,16 @@
-package com.gipl.imagepicker;
+package com.gipl.imagepicker.listener;
 
 import android.os.Parcel;
+
+import com.gipl.imagepicker.exceptions.ImageErrors;
+import com.gipl.imagepicker.models.ImageResult;
 
 import java.util.ArrayList;
 
 /**
  * Created by Ankit on 20-May-19.
  */
-public class PickerResult implements ImagePicker.IImagePickerResult{
+public class PickerResult implements IImagePickerResult {
 
 
     public static final  Creator<PickerResult>CREATOR =new Creator<PickerResult>() {
@@ -36,7 +39,7 @@ public class PickerResult implements ImagePicker.IImagePickerResult{
     }
 
     @Override
-    public void onError(ImagePicker.ImageErrors imageErrors) {
+    public void onError(ImageErrors imageErrors) {
 
     }
 

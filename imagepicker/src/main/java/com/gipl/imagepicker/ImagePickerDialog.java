@@ -2,65 +2,65 @@ package com.gipl.imagepicker;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+
+import com.gipl.imagepicker.listener.IImagePickerResult;
+import com.gipl.imagepicker.listener.IPickerDialogListener;
+import com.gipl.imagepicker.models.PickerConfiguration;
+import com.gipl.imagepicker.resultwatcher.PikcerResultOberver;
 
 /**
- * Creted by User on 25-Jan-19
+ * Created by User on 25-Jan-19
  */
 public class ImagePickerDialog extends DialogFragment {
-    private Context context;
+    //    private Context context;
     private ImagePicker imagePicker;
-    private ImagePicker.IImagePickerResult iImagePickerResult;
-    private ImagePicker.IPickerDialogListener pickerDialogListener;
+    private IImagePickerResult iImagePickerResult;
+    private IPickerDialogListener pickerDialogListener;
     private PickerConfiguration pickerConfiguration;
 
-    public static ImagePickerDialog display(FragmentManager fragmentManager,
-                                            PickerConfiguration pickerConfiguration) {
-        ImagePickerDialog newFragment = new ImagePickerDialog();
+
+    public ImagePickerDialog(Context context, PikcerResultOberver pikcerResultOberver) {
+        imagePicker = new ImagePicker(context)
+                .setIMAGE_PATH("AppImages")
+                .setStoreInMyPath(true);
+        imagePicker.setPikcerResultOberver(pikcerResultOberver);
+        pikcerResultOberver.setImagePicker(imagePicker);
+        ((AppCompatActivity) context).getLifecycle().addObserver(pikcerResultOberver);
+    }
+
+    public void display(ImagePickerDialog ImagePickerDialog,FragmentManager fragmentManager,
+                                     PickerConfiguration pickerConfiguration) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("pickerConfig", pickerConfiguration);
-        newFragment.setArguments(bundle);
-        newFragment.show(fragmentManager, "");
-        return newFragment;
+        ImagePickerDialog.setArguments(bundle);
+        ImagePickerDialog.show(fragmentManager, "");
     }
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.context = context;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imagePicker = new ImagePicker(context)
-                .setIMAGE_PATH("AppImages")
-                .setStoreInMyPath(true);
-        imagePicker.setFragment(this);
     }
 
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-    }
 
     @NonNull
     @Override
@@ -69,8 +69,8 @@ public class ImagePickerDialog extends DialogFragment {
 
         iImagePickerResult = pickerConfiguration.getImagePickerResult();
         imagePicker.setImagePickerResult(iImagePickerResult);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = ((AppCompatActivity) context).getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
 
         pickerDialogListener = pickerConfiguration.getPickerDialogListener();
         imagePicker.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect());
@@ -155,15 +155,4 @@ public class ImagePickerDialog extends DialogFragment {
         });
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        imagePicker.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        imagePicker.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
 }

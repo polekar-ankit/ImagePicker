@@ -7,20 +7,22 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 
-import com.gipl.imagepicker.ImagePicker;
+import com.gipl.imagepicker.exceptions.ImageErrors;
 import com.gipl.imagepicker.ImagePickerDialog;
-import com.gipl.imagepicker.ImageResult;
-import com.gipl.imagepicker.PickerConfiguration;
-import com.gipl.imagepicker.PickerListener;
-import com.gipl.imagepicker.PickerResult;
+import com.gipl.imagepicker.models.ImageResult;
+import com.gipl.imagepicker.models.PickerConfiguration;
+import com.gipl.imagepicker.listener.PickerListener;
+import com.gipl.imagepicker.listener.PickerResult;
+import com.gipl.imagepicker.resultwatcher.PikcerResultOberver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView cropImageView;
-    private ImagePickerDialog imagePickerDialog;
+    private ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this, new PikcerResultOberver(getActivityResultRegistry()));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
                 .setIconColor(Color.parseColor("#000000"))
                 .setBackGroundColor(Color.parseColor("#ffffff"))
                 .setIsDialogCancelable(false)
-                .enableMultiSelect(true)
-                .setMultiSelectImageCount(3)
+                .enableMultiSelect(false)
+//                .setMultiSelectImageCount(3)
                 .setPickerDialogListener(new PickerListener() {
                     @Override
                     public void onCancelClick() {
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(ImagePicker.ImageErrors cameraErrors) {
+                    public void onError(ImageErrors cameraErrors) {
                         super.onError(cameraErrors);
                         setError(cameraErrors);
                     }
@@ -69,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
                         super.onReceiveImageList(imageResults);
-                        int count =  imageResults.size();
+                        int count = imageResults.size();
                         setImagesList(imageResults);
-                        Toast.makeText(MainActivity.this, "Found image list with " + count+ " images Successfully added", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setSetCustomDialog(true);
@@ -79,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_open_camera).setOnClickListener(view -> {
             pickerConfiguration.enableMultiSelect(true);
-            imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
+            imagePickerDialog.display(imagePickerDialog,getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
         });
 
 
@@ -87,32 +89,27 @@ public class MainActivity extends AppCompatActivity {
             if (imagePickerDialog != null && imagePickerDialog.isVisible())
                 imagePickerDialog.dismiss();
             pickerConfiguration.enableMultiSelect(false);
-            imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(),
+            imagePickerDialog.display(imagePickerDialog,getSupportFragmentManager(),
                     pickerConfiguration.setSetCustomDialog(false));
         });
     }
 
 
     public void setImagesList(ArrayList<ImageResult> imagesList) {
-            for (ImageResult imageResult : imagesList) {
-                File file =  new File(imageResult.getsImagePath());
-                if (file.exists()){
-                    Log.d("Files","Exits" + imageResult.getsImagePath());
-                }
+        for (ImageResult imageResult : imagesList) {
+            File file = new File(imageResult.getsImagePath());
+            if (file.exists()) {
+                Log.d("Files", "Exits" + imageResult.getsImagePath());
             }
+        }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        imagePickerDialog.onActivityResult(requestCode, resultCode, data);
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        imagePickerDialog.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        imagePickerDialog.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//    }
 
     public void setImage(String sPath, Bitmap bitmap) {
         if (!sPath.isEmpty()) {
@@ -121,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
             cropImageView.setImageBitmap(bitmap);
     }
 
-    public void setError(ImagePicker.ImageErrors imageErrors) {
-        if (imageErrors.getErrorType() == ImagePicker.ImageErrors.PERMISSION_ERROR) {
+    public void setError(ImageErrors imageErrors) {
+        if (imageErrors.getErrorType() == ImageErrors.PERMISSION_ERROR) {
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
             alertDialog.setTitle("Camera permission deny!");
             alertDialog.setMessage("Camera will be available after enabling Camera and Storage permission from setting");

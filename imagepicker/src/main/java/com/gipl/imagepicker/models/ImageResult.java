@@ -1,4 +1,4 @@
-package com.gipl.imagepicker;
+package com.gipl.imagepicker.models;
 
 import android.graphics.Bitmap;
 
