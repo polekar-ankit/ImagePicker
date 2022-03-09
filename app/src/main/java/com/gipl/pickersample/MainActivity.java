@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_open_camera).setOnClickListener(view -> {
             pickerConfiguration.enableMultiSelect(true);
-            imagePickerDialog.display(imagePickerDialog,getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
+            imagePickerDialog.display( pickerConfiguration.setSetCustomDialog(true));
         });
 
 
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             if (imagePickerDialog != null && imagePickerDialog.isVisible())
                 imagePickerDialog.dismiss();
             pickerConfiguration.enableMultiSelect(false);
-            imagePickerDialog.display(imagePickerDialog,getSupportFragmentManager(),
+            imagePickerDialog.display(
                     pickerConfiguration.setSetCustomDialog(false));
         });
     }

@@ -100,8 +100,7 @@ public class FirstFragment extends Fragment {
                 if (imagePickerDialog != null && imagePickerDialog.isVisible())
                     imagePickerDialog.dismiss();
                 pickerConfiguration.enableMultiSelect(false);
-                imagePickerDialog.display(imagePickerDialog, getChildFragmentManager(),
-                        pickerConfiguration.setSetCustomDialog(false));
+                imagePickerDialog.display(pickerConfiguration.setSetCustomDialog(false));
             }
         });
     }

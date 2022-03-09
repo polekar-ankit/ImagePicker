@@ -43,6 +43,11 @@ public class ImagePicker {
     private boolean fStoreInMyPath = false;
     //    private String DIRECTORY = "";
     private String IMAGE_PATH = "";
+
+    public Context getActivity() {
+        return activity;
+    }
+
     private Context activity;
     private IImagePickerResult iImagePickerResult;
     private String sImgPath = "";

@@ -27,7 +27,6 @@ import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
  * Created by User on 25-Jan-19
  */
 public class ImagePickerDialog extends DialogFragment {
-    //    private Context context;
     private ImagePicker imagePicker;
     private IImagePickerResult iImagePickerResult;
     private IPickerDialogListener pickerDialogListener;
@@ -43,12 +42,11 @@ public class ImagePickerDialog extends DialogFragment {
         lifecycle.addObserver(pickerResultObserver);
     }
 
-    public void display(ImagePickerDialog ImagePickerDialog,FragmentManager fragmentManager,
-                                     PickerConfiguration pickerConfiguration) {
+    public void display(PickerConfiguration pickerConfiguration) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("pickerConfig", pickerConfiguration);
-        ImagePickerDialog.setArguments(bundle);
-        ImagePickerDialog.show(fragmentManager, "");
+        this.setArguments(bundle);
+        show(((AppCompatActivity)imagePicker.getActivity()).getSupportFragmentManager(),"");
     }
 
 
