@@ -13,8 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ComponentActivity;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 
@@ -33,13 +35,18 @@ public class ImagePickerDialog extends DialogFragment {
     private PickerConfiguration pickerConfiguration;
 
 
-    public ImagePickerDialog(Context context,Lifecycle lifecycle, PickerResultObserver pickerResultObserver) {
+    public ImagePickerDialog(Context context) {
         imagePicker = new ImagePicker(context)
                 .setIMAGE_PATH("AppImages")
                 .setStoreInMyPath(true);
+//        imagePicker.setPikcerResultOberver(pickerResultObserver);
+        FragmentActivity activity = (FragmentActivity) context;
+        if(activity==null)
+            throw new NullPointerException("Activity not found for attach dialog");
+        PickerResultObserver pickerResultObserver= new PickerResultObserver(activity.getActivityResultRegistry());
         imagePicker.setPikcerResultOberver(pickerResultObserver);
         pickerResultObserver.setImagePicker(imagePicker);
-        lifecycle.addObserver(pickerResultObserver);
+        activity.getLifecycle().addObserver(pickerResultObserver);
     }
 
     public void display(PickerConfiguration pickerConfiguration) {

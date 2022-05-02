@@ -31,7 +31,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView cropImageView;
-    private ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this,getLifecycle(), new PickerResultObserver(getActivityResultRegistry()));
+    private ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
