@@ -1,5 +1,6 @@
 package com.gipl.pickersample;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView cropImageView;
-    private ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this);
+    private final ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

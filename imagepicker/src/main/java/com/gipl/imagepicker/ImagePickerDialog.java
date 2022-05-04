@@ -35,11 +35,16 @@ public class ImagePickerDialog extends DialogFragment {
     private PickerConfiguration pickerConfiguration;
 
 
+    /**
+     * User component activity context eg.FragmentActivity,AppCompactActivity.
+     * don't pass Activity context it will throw class cast exception
+     * @param context
+     */
+
     public ImagePickerDialog(Context context) {
         imagePicker = new ImagePicker(context)
                 .setIMAGE_PATH("AppImages")
                 .setStoreInMyPath(true);
-//        imagePicker.setPikcerResultOberver(pickerResultObserver);
         FragmentActivity activity = (FragmentActivity) context;
         if(activity==null)
             throw new NullPointerException("Activity not found for attach dialog");
