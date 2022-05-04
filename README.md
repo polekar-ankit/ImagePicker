@@ -20,7 +20,7 @@ allprojects {
         }
    }
    dependencies {
-        implementation 'com.github.polekar-ankit:ImagePicker:v3.5.1'
+        implementation 'com.github.polekar-ankit:ImagePicker:3.5.1'
    }
 ```
 
