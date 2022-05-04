@@ -1,4 +1,6 @@
 # ImagePicker
+[![](https://jitpack.io/v/polekar-ankit/ImagePicker.svg)](https://jitpack.io/#polekar-ankit/ImagePicker).
+
 Easy to use and configurable library to Pick an image from the Gallery or Capture image using Camera.
 
 It contains source code, help and one sample app to test the functionality.
