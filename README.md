@@ -20,7 +20,7 @@ allprojects {
         }
    }
    dependencies {
-        implementation 'com.github.polekar-ankit:ImagePicker:2.5'
+        implementation 'com.github.polekar-ankit:ImagePicker:v3.5.1'
    }
 ```
 
@@ -29,7 +29,7 @@ To view complete source code for the sample, refer repository.
 
 In order to use this image picker, you need to set its configuration using PickerConfiguration class.
 ```
-final PickerConfiguration pickerConfiguration = PickerConfiguration.build()
+final PickerConfiguration pickerConfiguration = new ImagePickerDialog(this)
 ```
 
 To open image picker dialog
@@ -49,22 +49,7 @@ public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
         int count =  imageResults.size();
 }
 ```
-Override onActivityResult method call onActivityResult method of image picker dialog 
-```
-@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        imagePickerDialog.onActivityResult(requestCode, resultCode, data);
-    }
-```
-also Override onRequestPermissionsResult and call onRequestPermissionsResult method of image picker dialog to manage permission related activity.You don't need to request any permission. Library takes care of that. 
-```
-@Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        imagePickerDialog.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-```
+also
 ## properties of PickerConfiguration
 
 #### 1.setTextColor(int colorCode)
