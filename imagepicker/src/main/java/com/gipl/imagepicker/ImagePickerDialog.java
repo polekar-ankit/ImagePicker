@@ -1,10 +1,10 @@
 package com.gipl.imagepicker;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -12,15 +12,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ComponentActivity;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 
-import com.gipl.imagepicker.listener.IImagePickerResult;
+import com.gipl.imagepicker.listener.IImageResult;
 import com.gipl.imagepicker.listener.IPickerDialogListener;
 import com.gipl.imagepicker.models.PickerConfiguration;
 import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
@@ -30,92 +25,54 @@ import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
  */
 public class ImagePickerDialog extends DialogFragment {
     private ImagePicker imagePicker;
-    private IImagePickerResult iImagePickerResult;
     private IPickerDialogListener pickerDialogListener;
     private PickerConfiguration pickerConfiguration;
 
-
-    /**
-     * User component activity context eg.FragmentActivity,AppCompactActivity.
-     * don't pass Activity context it will throw class cast exception
-     * @param context
-     */
-
-    public ImagePickerDialog(Context context) {
-        imagePicker = new ImagePicker(context)
-                .setIMAGE_PATH("AppImages")
-                .setStoreInMyPath(true);
-        FragmentActivity activity = (FragmentActivity) context;
-        if(activity==null)
-            throw new NullPointerException("Activity not found for attach dialog");
-        PickerResultObserver pickerResultObserver= new PickerResultObserver(activity.getActivityResultRegistry());
-        imagePicker.setPikcerResultOberver(pickerResultObserver);
-        pickerResultObserver.setImagePicker(imagePicker);
-        activity.getLifecycle().addObserver(pickerResultObserver);
-    }
-
-    public void display(PickerConfiguration pickerConfiguration) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("pickerConfig", pickerConfiguration);
-        this.setArguments(bundle);
-        show(((AppCompatActivity)imagePicker.getActivity()).getSupportFragmentManager(),"");
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void setPickerConfiguration(PickerConfiguration pickerConfiguration) {
+        this.pickerConfiguration = pickerConfiguration;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        imagePicker = new ImagePicker(requireContext())
+                .setIMAGE_PATH("AppImages")
+                .setStoreInMyPath(true);
+        PickerResultObserver pickerResultObserver = new PickerResultObserver(requireActivity().getActivityResultRegistry());
+        imagePicker.setPikcerResultOberver(pickerResultObserver);
+        pickerResultObserver.setImagePicker(imagePicker);
+        getLifecycle().addObserver(pickerResultObserver);
+
     }
 
 
-    @NonNull
+    @Nullable
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        pickerConfiguration = getArguments().getParcelable("pickerConfig");
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.layout_custom_image_picker, container, false);
+    }
 
-        iImagePickerResult = pickerConfiguration.getImagePickerResult();
-        imagePicker.setImagePickerResult(iImagePickerResult);
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        IImageResult iImageResult = pickerConfiguration.getImagePickerResult();
+        imagePicker.setImagePickerResult(iImageResult);
+        imagePicker.setiImageListResult(pickerConfiguration.getImageListResult());
+        imagePicker.setiImagePickerError(pickerConfiguration.getImagePickerError());
+
 
         pickerDialogListener = pickerConfiguration.getPickerDialogListener();
         imagePicker.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect());
         imagePicker.setnMultiSelectCount(pickerConfiguration.getMultiSelectImageCount());
-        builder.setCancelable(pickerConfiguration.isfIsDialogCancelable());
-        this.setCancelable(pickerConfiguration.isfIsDialogCancelable());
 
 
-        if (pickerConfiguration.isIsSetCustomDialog()) {
-            View view = inflater.inflate(R.layout.layout_custom_image_picker, null);
-            builder.setView(view);
-            setCustomView(view);
-            setViewConfig(view);
-        } else
-            builder.setTitle("Image Picker")
-                    .setItems(R.array.dialog_menus_image_picker,
-                            (dialogInterface, position) -> {
-                                switch (position) {
-                                    case 0:
-                                        imagePicker.openCamera();
-                                        break;
-                                    case 1:
-                                        imagePicker.startGallary();
-                                        break;
-                                    case 2:
-                                        ImagePickerDialog.this.dismiss();
-                                        if (pickerDialogListener != null)
-                                            pickerDialogListener.onCancelClick();
-                                        break;
-                                }
-                            });
+        setCancelable(pickerConfiguration.isfIsDialogCancelable());
+        setCancelable(pickerConfiguration.isfIsDialogCancelable());
 
-        return builder.create();
+        setCustomView(view);
+        setViewConfig(view);
     }
+
 
     private void setViewConfig(View view) {
         ImageView ivCamera = view.findViewById(R.id.iv_camera);

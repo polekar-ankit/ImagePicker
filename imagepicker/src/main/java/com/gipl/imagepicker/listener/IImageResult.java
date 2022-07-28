@@ -7,21 +7,12 @@ import com.gipl.imagepicker.models.ImageResult;
 
 import java.util.ArrayList;
 
-public interface IImagePickerResult extends Parcelable {
+public interface IImageResult {
     /**
      * for single image you  will receive result from this listener
      *
      * @param imageResult:object of image path and bitmap
      */
     void onImageGet(ImageResult imageResult);
-
-    /**
-     * for muti select you will receive result from this listener
-     *
-     * @param imageResults :array of ImageResult(image path and bitmap)
-     */
-    void onReceiveImageList(ArrayList<ImageResult> imageResults);
-
-    void onError(ImageErrors imageErrors);
 
 }

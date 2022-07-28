@@ -1,20 +1,18 @@
 package com.gipl.imagepicker.models;
 
 import android.graphics.Color;
-import android.os.Parcel;
-import android.os.Parcelable;
 
-import com.gipl.imagepicker.listener.IImagePickerResult;
+import com.gipl.imagepicker.listener.IImageListResult;
+import com.gipl.imagepicker.listener.IImagePickerError;
+import com.gipl.imagepicker.listener.IImageResult;
 import com.gipl.imagepicker.listener.IPickerDialogListener;
 
 /**
  * Creted by User on 25-Jan-19
  */
 
-public class PickerConfiguration implements Parcelable {
+public class PickerConfiguration {
 
-
-    private boolean fIsSetCustomDialog;
     private int colorCodeText;
     private int colorCodeIcon;
     private boolean fIsDialogCancelable;
@@ -23,55 +21,16 @@ public class PickerConfiguration implements Parcelable {
     private int galleryImageId;
     private boolean isEnableMultiSelect;
     private IPickerDialogListener pickerDialogListener;
-    private IImagePickerResult imagePickerResult;
+    private IImageResult imagePickerResult;
+    private IImageListResult iImageListResult;
+    private IImagePickerError iImagePickerError;
     private String sCameraTitle;
     private String sGalleryTitle;
-
-
-
-    protected PickerConfiguration(Parcel in) {
-        fIsSetCustomDialog = in.readByte() != 0;
-        colorCodeText = in.readInt();
-        colorCodeIcon = in.readInt();
-        fIsDialogCancelable = in.readByte() != 0;
-        nBackGroundColor = in.readInt();
-        cameraImageId = in.readInt();
-        galleryImageId = in.readInt();
-        isEnableMultiSelect = in.readByte() != 0;
-        pickerDialogListener = in.readParcelable(IPickerDialogListener.class.getClassLoader());
-        imagePickerResult = in.readParcelable(IImagePickerResult.class.getClassLoader());
-        sCameraTitle = in.readString();
-        sGalleryTitle = in.readString();
-        multiSelectImageCount = in.readInt();
-    }
-
-    public static final Creator<PickerConfiguration> CREATOR = new Creator<PickerConfiguration>() {
-        @Override
-        public PickerConfiguration createFromParcel(Parcel in) {
-            return new PickerConfiguration(in);
-        }
-
-        @Override
-        public PickerConfiguration[] newArray(int size) {
-            return new PickerConfiguration[size];
-        }
-    };
-
-    public int getMultiSelectImageCount() {
-        return multiSelectImageCount;
-    }
-
-    public PickerConfiguration setMultiSelectImageCount(int multiSelectImageCount) {
-        this.multiSelectImageCount = multiSelectImageCount;
-        return this;
-    }
-
     private int multiSelectImageCount;
 
     private PickerConfiguration() {
         colorCodeText = Color.BLACK;
         nBackGroundColor = Color.WHITE;
-        fIsSetCustomDialog = false;
         fIsDialogCancelable = true;
         cameraImageId = -1;
         galleryImageId = -1;
@@ -82,9 +41,35 @@ public class PickerConfiguration implements Parcelable {
 
     }
 
-
     public static PickerConfiguration build() {
         return new PickerConfiguration();
+    }
+
+    public IImageListResult getImageListResult() {
+        return iImageListResult;
+    }
+
+    public PickerConfiguration setImageListResult(IImageListResult iImageListResult) {
+        this.iImageListResult = iImageListResult;
+        return this;
+    }
+
+    public IImagePickerError getImagePickerError() {
+        return iImagePickerError;
+    }
+
+    public PickerConfiguration setImagePickerError(IImagePickerError iImagePickerError) {
+        this.iImagePickerError = iImagePickerError;
+        return this;
+    }
+
+    public int getMultiSelectImageCount() {
+        return multiSelectImageCount;
+    }
+
+    public PickerConfiguration setMultiSelectImageCount(int multiSelectImageCount) {
+        this.multiSelectImageCount = multiSelectImageCount;
+        return this;
     }
 
     public boolean isEnableMultiSelect() {
@@ -96,11 +81,11 @@ public class PickerConfiguration implements Parcelable {
         return this;
     }
 
-    public IImagePickerResult getImagePickerResult() {
+    public IImageResult getImagePickerResult() {
         return imagePickerResult;
     }
 
-    public PickerConfiguration setImagePickerResult(IImagePickerResult imagePickerResult) {
+    public PickerConfiguration setImagePickerResult(IImageResult imagePickerResult) {
         this.imagePickerResult = imagePickerResult;
         return this;
     }
@@ -123,14 +108,6 @@ public class PickerConfiguration implements Parcelable {
         return this;
     }
 
-    public boolean isIsSetCustomDialog() {
-        return fIsSetCustomDialog;
-    }
-
-    public PickerConfiguration setSetCustomDialog(boolean fIsSetCustomDialog) {
-        this.fIsSetCustomDialog = fIsSetCustomDialog;
-        return this;
-    }
 
     public int getTextColor() {
         return colorCodeText;
@@ -197,25 +174,4 @@ public class PickerConfiguration implements Parcelable {
     }
 
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (fIsSetCustomDialog ? 1 : 0));
-        dest.writeInt(colorCodeText);
-        dest.writeInt(colorCodeIcon);
-        dest.writeByte((byte) (fIsDialogCancelable ? 1 : 0));
-        dest.writeInt(nBackGroundColor);
-        dest.writeInt(cameraImageId);
-        dest.writeInt(galleryImageId);
-        dest.writeByte((byte) (isEnableMultiSelect ? 1 : 0));
-        dest.writeParcelable(pickerDialogListener, flags);
-        dest.writeParcelable(imagePickerResult, flags);
-        dest.writeString(sCameraTitle);
-        dest.writeString(sGalleryTitle);
-        dest.writeInt(multiSelectImageCount);
-    }
 }

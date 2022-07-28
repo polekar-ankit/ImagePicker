@@ -11,7 +11,6 @@ import android.os.Build;
 import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -19,7 +18,9 @@ import androidx.core.content.FileProvider;
 import com.gipl.gallary.helpers.ConstantsCustomGallery;
 import com.gipl.gallary.models.Image;
 import com.gipl.imagepicker.exceptions.ImageErrors;
-import com.gipl.imagepicker.listener.IImagePickerResult;
+import com.gipl.imagepicker.listener.IImageListResult;
+import com.gipl.imagepicker.listener.IImagePickerError;
+import com.gipl.imagepicker.listener.IImageResult;
 import com.gipl.imagepicker.models.ImageResult;
 import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 import com.gipl.imagepicker.utility.MediaUtility;
@@ -37,26 +38,29 @@ import static com.gipl.imagepicker.utility.MediaUtility.PROFILE_PHOTO;
  */
 public class ImagePicker {
 
-    private static final int CAMERA_REQUEST = 12;
     public static final int CAMERA_PERMISSION_REQUEST = 123;
     public static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
+    private static final int CAMERA_REQUEST = 12;
+    private final Context activity;
     private boolean fStoreInMyPath = false;
-    //    private String DIRECTORY = "";
     private String IMAGE_PATH = "";
-
-    public Context getActivity() {
-        return activity;
-    }
-
-    private Context activity;
-    private IImagePickerResult iImagePickerResult;
+    private IImageResult iImageResult;
+    private IImagePickerError iImagePickerError;
+    private IImageListResult iImageListResult;
     private String sImgPath = "";
     private boolean isEnableMultiSelect;
     private int nMultiSelectCount = 1;
     private PickerResultObserver pickerResultObserver;
-
     ImagePicker(Context activity) {
         this.activity = activity;
+    }
+
+    public void setiImagePickerError(IImagePickerError iImagePickerError) {
+        this.iImagePickerError = iImagePickerError;
+    }
+
+    public void setiImageListResult(IImageListResult iImageListResult) {
+        this.iImageListResult = iImageListResult;
     }
 
     void setnMultiSelectCount(int nMultiSelectCount) {
@@ -116,7 +120,7 @@ public class ImagePicker {
                     // Continue only if the File was successfully created
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 } else {
-                    iImagePickerResult.onError(new ImageErrors("Please provide Image Directory and Image path", ImageErrors.DIR_ERROR));
+                    iImagePickerError.onError(new ImageErrors("Please provide Image Directory and Image path", ImageErrors.DIR_ERROR));
                 }
             }
             openCamera(takePictureIntent);
@@ -156,7 +160,6 @@ public class ImagePicker {
         return /*!DIRECTORY.isEmpty() &&*/ !IMAGE_PATH.isEmpty();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
         String sPath;
         if (resultCode == RESULT_OK) {
@@ -164,8 +167,8 @@ public class ImagePicker {
                 Executors.newSingleThreadExecutor().submit(() -> {
                     Bitmap photo = BitmapFactory.decodeFile(new File(sImgPath).getAbsolutePath());
                     ((AppCompatActivity) activity).runOnUiThread(() -> {
-                        if (iImagePickerResult != null)
-                            iImagePickerResult.onImageGet(new ImageResult(sImgPath, photo));
+                        if (iImageResult != null)
+                            iImageResult.onImageGet(new ImageResult(sImgPath, photo));
                     });
                 });
 
@@ -178,11 +181,11 @@ public class ImagePicker {
                             if (sPath.trim().isEmpty()) {
                                 sPath = MediaUtility.getFilePathFromUri(activity, MediaUtility.insertImage(activity, bitmap));
                             }
-                            iImagePickerResult.onImageGet(new ImageResult(sPath, bitmap));
+                            iImageResult.onImageGet(new ImageResult(sPath, bitmap));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        iImagePickerResult.onError(new ImageErrors("Unable get image try again", ImageErrors.IMAGE_ERROR));
+                        iImagePickerError.onError(new ImageErrors("Unable get image try again", ImageErrors.IMAGE_ERROR));
                     }
                 }
                 if (requestCode == ConstantsCustomGallery.REQUEST_CODE && data != null) {
@@ -203,20 +206,20 @@ public class ImagePicker {
 
                             ((AppCompatActivity) activity).runOnUiThread(() -> {
                                 if (images.size() > 1)
-                                    iImagePickerResult.onReceiveImageList(images);
+                                    iImageListResult.onReceiveImageList(images);
                                 if (images.size() == 1)
-                                    iImagePickerResult.onImageGet(images.get(0));
+                                    iImageResult.onImageGet(images.get(0));
                             });
 
                         } catch (Exception e) {
-                            ((AppCompatActivity) activity).runOnUiThread(() -> iImagePickerResult.onError(new ImageErrors(e.getMessage(), ImageErrors.IMAGE_PICK_CANCEL)));
+                            ((AppCompatActivity) activity).runOnUiThread(() -> iImagePickerError.onError(new ImageErrors(e.getMessage(), ImageErrors.IMAGE_PICK_CANCEL)));
                         }
                     });
                 }
             }
 
         } else {
-            iImagePickerResult.onError(new ImageErrors("Unable get image try again", ImageErrors.IMAGE_PICK_CANCEL));
+            iImagePickerError.onError(new ImageErrors("Unable get image try again", ImageErrors.IMAGE_PICK_CANCEL));
         }
 
 
@@ -230,14 +233,14 @@ public class ImagePicker {
                     && grantResults[1]) {
                 openCamera();
             } else {
-                iImagePickerResult.onError(new ImageErrors("Permission is disable by user", ImageErrors.PERMISSION_ERROR));
+                iImagePickerError.onError(new ImageErrors("Permission is disable by user", ImageErrors.PERMISSION_ERROR));
             }
         } else if (requestCode == STORAGE_ACCESS_PERMISSION_REQUEST) {
             if (grantResults.length > 0 &&
                     grantResults[0]) {
                 startGallary();
             } else
-                iImagePickerResult.onError(new ImageErrors("Permission is disable by user", ImageErrors.PERMISSION_ERROR));
+                iImagePickerError.onError(new ImageErrors("Permission is disable by user", ImageErrors.PERMISSION_ERROR));
         }
 
     }
@@ -248,8 +251,8 @@ public class ImagePicker {
     }
 
 
-    void setImagePickerResult(IImagePickerResult iImagePickerResult) {
-        this.iImagePickerResult = iImagePickerResult;
+    void setImagePickerResult(IImageResult iImageResult) {
+        this.iImageResult = iImageResult;
     }
 
     void setEnableMultiSelect(boolean enableMultiSelect) {

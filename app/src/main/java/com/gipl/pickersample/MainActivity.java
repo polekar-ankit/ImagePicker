@@ -1,6 +1,5 @@
 package com.gipl.pickersample;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,11 +18,11 @@ import android.widget.Toast;
 
 import com.gipl.imagepicker.exceptions.ImageErrors;
 import com.gipl.imagepicker.ImagePickerDialog;
+import com.gipl.imagepicker.listener.IImageListResult;
+import com.gipl.imagepicker.listener.IImageResult;
+import com.gipl.imagepicker.listener.IPickerDialogListener;
 import com.gipl.imagepicker.models.ImageResult;
 import com.gipl.imagepicker.models.PickerConfiguration;
-import com.gipl.imagepicker.listener.PickerListener;
-import com.gipl.imagepicker.listener.PickerResult;
-import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView cropImageView;
-    private final ImagePickerDialog imagePickerDialog = new ImagePickerDialog(this);
+    private final ImagePickerDialog imagePickerDialog = new ImagePickerDialog();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,41 +47,24 @@ public class MainActivity extends AppCompatActivity {
                 .setIsDialogCancelable(false)
                 .enableMultiSelect(false)
 //                .setMultiSelectImageCount(3)
-                .setPickerDialogListener(new PickerListener() {
+                .setPickerDialogListener(new IPickerDialogListener() {
                     @Override
                     public void onCancelClick() {
-                        super.onCancelClick();
-                        Toast.makeText(MainActivity.this, "Cancel", Toast.LENGTH_SHORT).show();
+
                     }
                 })
-                .setImagePickerResult(new PickerResult() {
-
-                    @Override
-                    public void onImageGet(ImageResult imageResult) {
-                        super.onImageGet(imageResult);
-                        setImage(imageResult.getsImagePath(), imageResult.getImageBitmap());
-                    }
-
-                    @Override
-                    public void onError(ImageErrors cameraErrors) {
-                        super.onError(cameraErrors);
-                        setError(cameraErrors);
-                    }
-
-                    @Override
-                    public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
-                        super.onReceiveImageList(imageResults);
-                        int count = imageResults.size();
-                        setImagesList(imageResults);
-                        Toast.makeText(MainActivity.this, "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
-                    }
+                .setImagePickerError(this::setError)
+                .setImageListResult(imageResults -> {
+                    int count = imageResults.size();
+                    setImagesList(imageResults);
+                    Toast.makeText(MainActivity.this, "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
                 })
-                .setSetCustomDialog(true);
+                .setImagePickerResult(imageResult -> setImage(imageResult.getsImagePath(), imageResult.getImageBitmap()));
 
 
         findViewById(R.id.btn_open_camera).setOnClickListener(view -> {
             pickerConfiguration.enableMultiSelect(true);
-            imagePickerDialog.display( pickerConfiguration.setSetCustomDialog(true));
+            imagePickerDialog.show(getSupportFragmentManager(), "");
         });
 
 
@@ -90,8 +72,7 @@ public class MainActivity extends AppCompatActivity {
             if (imagePickerDialog != null && imagePickerDialog.isVisible())
                 imagePickerDialog.dismiss();
             pickerConfiguration.enableMultiSelect(false);
-            imagePickerDialog.display(
-                    pickerConfiguration.setSetCustomDialog(false));
+            imagePickerDialog.show(getSupportFragmentManager(), "");
         });
     }
 

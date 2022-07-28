@@ -4,9 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,15 +15,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.gipl.imagepicker.ImagePickerDialog;
 import com.gipl.imagepicker.exceptions.ImageErrors;
-import com.gipl.imagepicker.listener.PickerListener;
-import com.gipl.imagepicker.listener.PickerResult;
+import com.gipl.imagepicker.listener.IImageListResult;
+import com.gipl.imagepicker.listener.IImagePickerError;
+import com.gipl.imagepicker.listener.IImageResult;
+import com.gipl.imagepicker.listener.IPickerDialogListener;
 import com.gipl.imagepicker.models.ImageResult;
 import com.gipl.imagepicker.models.PickerConfiguration;
-import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 import com.gipl.pickersample.databinding.FragmentFirstBinding;
 
 import java.io.File;
@@ -39,7 +37,7 @@ public class FirstFragment extends Fragment {
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imagePickerDialog = new ImagePickerDialog(requireContext());
+        imagePickerDialog = new ImagePickerDialog();
     }
 
     @Override
@@ -62,46 +60,22 @@ public class FirstFragment extends Fragment {
                 .setIsDialogCancelable(false)
                 .enableMultiSelect(false)
 //                .setMultiSelectImageCount(3)
-                .setPickerDialogListener(new PickerListener() {
-                    @Override
-                    public void onCancelClick() {
-                        super.onCancelClick();
-                        Toast.makeText(requireContext(), "Cancel", Toast.LENGTH_SHORT).show();
-                    }
+                .setPickerDialogListener(() -> Toast.makeText(requireContext(), "Cancel", Toast.LENGTH_SHORT).show())
+                .setImagePickerError(this::setError)
+                .setImageListResult(imageResults -> {
+                    int count = imageResults.size();
+                    setImagesList(imageResults);
+                    Toast.makeText(requireContext(), "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
                 })
-                .setImagePickerResult(new PickerResult() {
-
-                    @Override
-                    public void onImageGet(ImageResult imageResult) {
-                        super.onImageGet(imageResult);
-                        setImage(imageResult.getsImagePath(), imageResult.getImageBitmap());
-                    }
-
-                    @Override
-                    public void onError(ImageErrors cameraErrors) {
-                        super.onError(cameraErrors);
-                        setError(cameraErrors);
-                    }
-
-                    @Override
-                    public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
-                        super.onReceiveImageList(imageResults);
-                        int count = imageResults.size();
-                        setImagesList(imageResults);
-                        Toast.makeText(requireContext(), "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setSetCustomDialog(true);
+                .setImagePickerResult(imageResult -> setImage(imageResult.getsImagePath(), imageResult.getImageBitmap()));
 
 
-        binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (imagePickerDialog != null && imagePickerDialog.isVisible())
-                    imagePickerDialog.dismiss();
-                pickerConfiguration.enableMultiSelect(false);
-                imagePickerDialog.display(pickerConfiguration.setSetCustomDialog(false));
-            }
+        binding.buttonFirst.setOnClickListener(view1 -> {
+            if (imagePickerDialog != null && imagePickerDialog.isVisible())
+                imagePickerDialog.dismiss();
+            pickerConfiguration.enableMultiSelect(false);
+            imagePickerDialog.setPickerConfiguration(pickerConfiguration);
+            imagePickerDialog.show(getChildFragmentManager(),"");
         });
     }
 
@@ -120,15 +94,8 @@ public class FirstFragment extends Fragment {
         }
     }
 
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        imagePickerDialog.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//    }
-
     public void setImage(String sPath, Bitmap bitmap) {
-
+        Toast.makeText(requireContext(),sPath,Toast.LENGTH_SHORT).show();
     }
 
     public void setError(ImageErrors imageErrors) {
