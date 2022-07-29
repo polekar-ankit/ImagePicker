@@ -1,7 +1,7 @@
 # ImagePicker
 [![](https://jitpack.io/v/polekar-ankit/ImagePicker.svg)](https://jitpack.io/#polekar-ankit/ImagePicker).
 
-## now we are migrating our library to kotlin.
+## Now we are migrating our library to kotlin.
 Easy to use and configurable library to Pick an image from the Gallery or Capture image using Camera.
 
 It contains source code, help and one sample app to test the functionality.
@@ -47,6 +47,7 @@ imagePickerDialog = imagePickerDialog.show();
 //below method is remove and it is replace ImagePickerDialog.show()
 <!--  ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true)); -->
 ```
+## Set blow three method pickerConfiguration to listen image and error
 ```
 setImagePickerErrorListener(this::setError)//Listen error
 
@@ -83,10 +84,10 @@ also
 
 
 ### ScreenShot	 	 
-<img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183237.png" alt="alt text" width="200" height="400"> <img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183322.png" alt="alt text" width="200" height="400">
+<img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183322.png" alt="alt text" width="200" height="400">
 
 Default Dialog &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Customised Dialog
 
 ## Authors
-* **Ankit Polekar**
-* **Suyash Raikar**
+[* **Ankit Polekar**](https://github.com/polekar-ankit)
+[* **Suyash Raikar**](https://github.com/Suyash171)
