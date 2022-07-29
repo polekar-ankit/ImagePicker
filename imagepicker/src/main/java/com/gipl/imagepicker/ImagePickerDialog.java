@@ -1,6 +1,5 @@
 package com.gipl.imagepicker;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
 
@@ -35,14 +33,15 @@ public class ImagePickerDialog extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PickerResultObserver pickerResultObserver = new PickerResultObserver(requireActivity().getActivityResultRegistry());
+        getLifecycle().addObserver(pickerResultObserver);
+
         imagePicker = new ImagePicker(requireContext())
                 .setIMAGE_PATH("AppImages")
                 .setStoreInMyPath(true);
-        PickerResultObserver pickerResultObserver = new PickerResultObserver(requireActivity().getActivityResultRegistry());
+
         imagePicker.setPikcerResultOberver(pickerResultObserver);
         pickerResultObserver.setImagePicker(imagePicker);
-        getLifecycle().addObserver(pickerResultObserver);
-
     }
 
 
@@ -57,13 +56,13 @@ public class ImagePickerDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         IImageResult iImageResult = pickerConfiguration.getImagePickerResult();
         imagePicker.setImagePickerResult(iImageResult);
-        imagePicker.setiImageListResult(pickerConfiguration.getImageListResult());
-        imagePicker.setiImagePickerError(pickerConfiguration.getImagePickerError());
+        imagePicker.setImageListResult(pickerConfiguration.getImageListResult());
+        imagePicker.setImagePickerError(pickerConfiguration.getImagePickerError());
 
 
         pickerDialogListener = pickerConfiguration.getPickerDialogListener();
         imagePicker.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect());
-        imagePicker.setnMultiSelectCount(pickerConfiguration.getMultiSelectImageCount());
+        imagePicker.setMultiSelectCount(pickerConfiguration.getMultiSelectImageCount());
 
 
         setCancelable(pickerConfiguration.isfIsDialogCancelable());
@@ -71,6 +70,7 @@ public class ImagePickerDialog extends DialogFragment {
 
         setCustomView(view);
         setViewConfig(view);
+        imagePicker.getCloseDialog().observe(this, aBoolean -> dismiss());
     }
 
 
@@ -110,11 +110,9 @@ public class ImagePickerDialog extends DialogFragment {
 
         llOpenGallery.setOnClickListener(view13 -> {
             imagePicker.startGallary();
-            dismiss();
         });
         llOpenCamera.setOnClickListener(view12 -> {
             imagePicker.openCamera();
-            dismiss();
         });
         tvCancel.setOnClickListener(view1 -> {
             if (pickerDialogListener != null)

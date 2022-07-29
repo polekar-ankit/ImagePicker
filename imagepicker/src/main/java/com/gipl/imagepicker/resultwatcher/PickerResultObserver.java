@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -16,8 +15,6 @@ import com.gipl.gallary.helpers.ConstantsCustomGallery;
 import com.gipl.imagepicker.ImagePicker;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 import static com.gipl.imagepicker.ImagePicker.CAMERA_PERMISSION_REQUEST;
 import static com.gipl.imagepicker.ImagePicker.STORAGE_ACCESS_PERMISSION_REQUEST;
@@ -75,16 +72,16 @@ public class PickerResultObserver implements DefaultLifecycleObserver {
                     boolean isWriteToExternal = result.get(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                     imagePicker.onRequestPermissionsResult(new Boolean[]{
                                     isCameraPermissionGranted, isWriteToExternal
-                            }, CAMERA_PERMISSION_REQUEST,
-                            new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE});
+                            }, CAMERA_PERMISSION_REQUEST
+                    );
                 }
         );
         mGetGalleryPermission = mRegistry.register("keyGalleryPermission", owner,
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> imagePicker.onRequestPermissionsResult(new Boolean[]{
                                 isGranted
-                        }, STORAGE_ACCESS_PERMISSION_REQUEST,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}));
+                        }, STORAGE_ACCESS_PERMISSION_REQUEST
+                ));
 
     }
 

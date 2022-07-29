@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.MutableLiveData;
 
 import com.gipl.gallary.helpers.ConstantsCustomGallery;
 import com.gipl.gallary.models.Image;
@@ -51,19 +52,25 @@ public class ImagePicker {
     private boolean isEnableMultiSelect;
     private int nMultiSelectCount = 1;
     private PickerResultObserver pickerResultObserver;
+    private final MutableLiveData<Boolean> closeDialog = new MutableLiveData<>();
+
     ImagePicker(Context activity) {
         this.activity = activity;
     }
 
-    public void setiImagePickerError(IImagePickerError iImagePickerError) {
+    public MutableLiveData<Boolean> getCloseDialog() {
+        return closeDialog;
+    }
+
+    public void setImagePickerError(IImagePickerError iImagePickerError) {
         this.iImagePickerError = iImagePickerError;
     }
 
-    public void setiImageListResult(IImageListResult iImageListResult) {
+    public void setImageListResult(IImageListResult iImageListResult) {
         this.iImageListResult = iImageListResult;
     }
 
-    void setnMultiSelectCount(int nMultiSelectCount) {
+    void setMultiSelectCount(int nMultiSelectCount) {
         this.nMultiSelectCount = nMultiSelectCount;
     }
 
@@ -221,12 +228,12 @@ public class ImagePicker {
         } else {
             iImagePickerError.onError(new ImageErrors("Unable get image try again", ImageErrors.IMAGE_PICK_CANCEL));
         }
-
+        closeDialog.setValue(true);
 
     }
 
 
-    public void onRequestPermissionsResult(Boolean[] grantResults, int requestCode, String[] permissions) {
+    public void onRequestPermissionsResult(Boolean[] grantResults, int requestCode) {
         if (requestCode == CAMERA_PERMISSION_REQUEST) {
             if (grantResults.length > 0
                     && grantResults[0]

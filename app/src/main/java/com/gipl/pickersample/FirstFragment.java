@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultRegistry;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -24,6 +25,7 @@ import com.gipl.imagepicker.listener.IImageResult;
 import com.gipl.imagepicker.listener.IPickerDialogListener;
 import com.gipl.imagepicker.models.ImageResult;
 import com.gipl.imagepicker.models.PickerConfiguration;
+import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 import com.gipl.pickersample.databinding.FragmentFirstBinding;
 
 import java.io.File;
@@ -32,7 +34,9 @@ import java.util.ArrayList;
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
+
     private ImagePickerDialog imagePickerDialog;
+
 
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
@@ -75,7 +79,7 @@ public class FirstFragment extends Fragment {
                 imagePickerDialog.dismiss();
             pickerConfiguration.enableMultiSelect(false);
             imagePickerDialog.setPickerConfiguration(pickerConfiguration);
-            imagePickerDialog.show(getChildFragmentManager(),"");
+            imagePickerDialog.show(getChildFragmentManager(), "");
         });
     }
 
@@ -95,7 +99,7 @@ public class FirstFragment extends Fragment {
     }
 
     public void setImage(String sPath, Bitmap bitmap) {
-        Toast.makeText(requireContext(),sPath,Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), sPath, Toast.LENGTH_SHORT).show();
     }
 
     public void setError(ImageErrors imageErrors) {
