@@ -47,18 +47,20 @@ imagePickerDialog = imagePickerDialog.show();
 //below method is remove and it is replace ImagePickerDialog.show()
 <!--  ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true)); -->
 ```
-.setImagePickerErrorListener(this::setError)//Listen error
+```
+setImagePickerErrorListener(this::setError)//Listen error
 
 //listen image list
-.setImageListResult(imageResults -> {
+setImageListResult(imageResults -> {
      int count = imageResults != null ? imageResults.size() : 0;
      setImagesList(imageResults);
      Toast.makeText(requireContext(), "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
  })
 
 //listen single image
-.setImagePickerResult(imageResult -> setImage(imageResult.getsImagePath(), imageResult.getImageBitmap()));
+setImagePickerResult(imageResult -> setImage(imageResult.getsImagePath(), imageResult.getImageBitmap()));
 ```
+
 also
 ## properties of PickerConfiguration
 
