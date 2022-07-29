@@ -86,8 +86,9 @@ also
 ### ScreenShot	 	 
 <img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183322.png" alt="alt text" width="200" height="400">
 
-Default Dialog &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Customised Dialog
+ Customised Dialog
 
 ## Authors
 [* **Ankit Polekar**](https://github.com/polekar-ankit)
+
 [* **Suyash Raikar**](https://github.com/Suyash171)
