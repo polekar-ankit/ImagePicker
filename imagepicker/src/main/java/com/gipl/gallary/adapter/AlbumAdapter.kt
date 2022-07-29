@@ -33,7 +33,7 @@ class AlbumAdapter : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
     }
 
 
-    fun setSize(size: Int) {
+    fun setAblumGridSize(size: Int) {
         this.viewSize = size
     }
 

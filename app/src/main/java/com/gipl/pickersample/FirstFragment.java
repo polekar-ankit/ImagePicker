@@ -56,8 +56,8 @@ public class FirstFragment extends Fragment {
                 .setIconColor(Color.parseColor("#000000"))
                 .setBackGroundColor(Color.parseColor("#ffffff"))
                 .setIsDialogCancelable(false)
-                .enableMultiSelect(false)
-//                .setMultiSelectImageCount(3)
+                .enableMultiSelect(true)
+                .setMultiSelectImageCount(3)
                 .setPickerDialogListener(() -> Toast.makeText(requireContext(), "Cancel", Toast.LENGTH_SHORT).show())
                 .setImagePickerError(this::setError)
                 .setImageListResult(imageResults -> {
@@ -71,7 +71,7 @@ public class FirstFragment extends Fragment {
         binding.buttonFirst.setOnClickListener(view1 -> {
             if (imagePickerDialog != null && imagePickerDialog.isVisible())
                 imagePickerDialog.dismiss();
-            pickerConfiguration.enableMultiSelect(false);
+//            pickerConfiguration.enableMultiSelect(false);
             imagePickerDialog.setPickerConfiguration(pickerConfiguration);
             imagePickerDialog.show(getChildFragmentManager(), "");
         });

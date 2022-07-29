@@ -13,6 +13,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 
 /**
  * Created by Ankit on 03-11-2016.
@@ -67,6 +68,11 @@ open class HelperActivity : AppCompatActivity() {
         snackbar.show()
     }
 
+    private val permissionResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            checkPermission()
+        }
+
     private fun showAppPermissionSettings() {
         val snackbar = Snackbar.make(
             helperView,
@@ -83,7 +89,8 @@ open class HelperActivity : AppCompatActivity() {
                 intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 intent.data = uri
-                startActivityForResult(intent, ConstantsCustomGallery.PERMISSION_REQUEST_CODE)
+                permissionResult.launch(intent)
+//                startActivityForResult(intent, ConstantsCustomGallery.PERMISSION_REQUEST_CODE)
             }
         (snackbar.view
             .findViewById<View>(R.id.snackbar_text) as TextView).maxLines = maxLines

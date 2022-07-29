@@ -33,11 +33,9 @@ class ImageSelectActivity : HelperActivity() {
     )
     var imageMutableLiveData = MutableLiveData<ArrayList<Image>>()
 
-    //    private ContentObserver observer;
-    var messageMutableLiveData = MutableLiveData<Message>()
+    private var messageMutableLiveData = MutableLiveData<Message>()
     var executors: ExecutorService? = null
-
-    //    private ArrayList<Image> images;
+    
     private var album: String? = null
     private var errorDisplay: TextView? = null
     private var tvProfile: TextView? = null
@@ -261,9 +259,12 @@ class ImageSelectActivity : HelperActivity() {
                     if (executors?.isShutdown == true) {
                         return
                     }
-                    val id = cursor.getLong(cursor.getColumnIndex(projection[0]))
-                    val name = cursor.getString(cursor.getColumnIndex(projection[1]))
-                    val path = cursor.getString(cursor.getColumnIndex(projection[2]))
+                    val idIdex = cursor.getColumnIndex(projection[0])
+                    val nameIdex = cursor.getColumnIndex(projection[1])
+                    val pathIdex = cursor.getColumnIndex(projection[2])
+                    val id = cursor.getLong(idIdex)
+                    val name = cursor.getString(nameIdex)
+                    val path = cursor.getString(pathIdex)
                     val isSelected = selectedImages.contains(id)
                     if (isSelected) {
                         tempCountSelected++

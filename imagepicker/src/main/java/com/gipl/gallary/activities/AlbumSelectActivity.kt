@@ -2,6 +2,7 @@ package com.gipl.gallary.activities
 
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.os.Message
 import android.provider.MediaStore
@@ -12,6 +13,7 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.GridLayoutManager
@@ -33,6 +35,13 @@ class AlbumSelectActivity : HelperActivity(), AlbumAdapter.IItemClickListener {
         MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
         MediaStore.Images.Media.DATA
     )
+    private val galleryRersult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK && it.data != null) {
+                setResult(RESULT_OK, it.data)
+                finish()
+            }
+        }
     var messageMutableLiveData = MutableLiveData<Message>()
     var service: ExecutorService? = null
     private val albumsLiveData = MutableLiveData<ArrayList<Album>>()
@@ -95,10 +104,17 @@ class AlbumSelectActivity : HelperActivity(), AlbumAdapter.IItemClickListener {
         if (adapter == null) {
             adapter = AlbumAdapter()
             val windowManager = applicationContext.getSystemService(WINDOW_SERVICE) as WindowManager
-            val metrics = DisplayMetrics()
-            windowManager.defaultDisplay.getMetrics(metrics)
-            val size = metrics.widthPixels / 2
-            adapter?.setSize(size)
+
+            val size = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                windowManager.currentWindowMetrics.bounds.width() / 2
+            } else {
+                val metrics = DisplayMetrics()
+                windowManager.defaultDisplay.getMetrics(metrics)
+                metrics.widthPixels / 2
+            }
+
+
+            adapter?.setAblumGridSize(size)
             val gridLayoutManager = GridLayoutManager(this, 2)
             gridView?.layoutManager = gridLayoutManager
             gridView?.adapter = adapter
@@ -106,7 +122,6 @@ class AlbumSelectActivity : HelperActivity(), AlbumAdapter.IItemClickListener {
             adapter?.addItem(albums)
             loader?.visibility = View.GONE
             gridView?.visibility = View.VISIBLE
-            //            orientationBasedUI(getResources().getConfiguration().orientation);
         } else {
             adapter?.addItem(albums)
             adapter?.notifyDataSetChanged()
@@ -116,9 +131,6 @@ class AlbumSelectActivity : HelperActivity(), AlbumAdapter.IItemClickListener {
     override fun onStart() {
         super.onStart()
         loadAlbums()
-
-
-//        getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, observer);
         checkPermission()
     }
 
@@ -146,13 +158,6 @@ class AlbumSelectActivity : HelperActivity(), AlbumAdapter.IItemClickListener {
         finish()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == ConstantsCustomGallery.REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            setResult(RESULT_OK, data)
-            finish()
-        }
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -173,11 +178,13 @@ class AlbumSelectActivity : HelperActivity(), AlbumAdapter.IItemClickListener {
         service?.submit(AlbumLoaderRunnable())
     }
 
+
     override fun onItemClick(album: Album?) {
         if (adapter != null) {
             val intent1 = Intent(applicationContext, ImageSelectActivity::class.java)
             intent1.putExtra(ConstantsCustomGallery.INTENT_EXTRA_ALBUM, album?.name)
-            startActivityForResult(intent1, ConstantsCustomGallery.REQUEST_CODE)
+//            startActivityForResult(intent1, ConstantsCustomGallery.REQUEST_CODE)
+            galleryRersult.launch(intent1)
         }
     }
 
@@ -219,9 +226,13 @@ class AlbumSelectActivity : HelperActivity(), AlbumAdapter.IItemClickListener {
                     if (Thread.interrupted()) {
                         return
                     }
-                    val albumId = cursor.getLong(cursor.getColumnIndex(projection[0]))
-                    val album = cursor.getString(cursor.getColumnIndex(projection[1]))
-                    val image = cursor.getString(cursor.getColumnIndex(projection[2]))
+                    val albumIdIndex = cursor.getColumnIndex(projection[0])
+                    val albumIndex = cursor.getColumnIndex(projection[1])
+                    val imgIndex = cursor.getColumnIndex(projection[2])
+
+                    val albumId = cursor.getLong(albumIdIndex)
+                    val album = cursor.getString(albumIndex)
+                    val image = cursor.getString(imgIndex)
                     if (!albumSet.contains(albumId)) {
                         /*
                         It may happen that some image file paths are still present in cache,
