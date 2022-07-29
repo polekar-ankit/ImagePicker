@@ -46,9 +46,6 @@ To open image picker dialog
 imagePickerDialog = imagePickerDialog.show();
 //below method is remove and it is replace ImagePickerDialog.show()
 <!--  ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true)); -->
-``
-
-In order to get and process selected image, use setImagePickerResult() method of PickerConfiguration class and override methods of PickerResult class.
 ```
 .setImagePickerErrorListener(this::setError)//Listen error
 
