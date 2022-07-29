@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gipl.imagepicker">
+    package="com.tap.imagepicker">
 
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -16,12 +16,12 @@
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true">
         <activity
-            android:name="com.gipl.gallary.activities.AlbumSelectActivity"
+            android:name="com.tap.gallary.activities.AlbumSelectActivity"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Design.NoActionBar" />
         <activity
-            android:name="com.gipl.gallary.activities.ImageSelectActivity"
+            android:name="com.tap.gallary.activities.ImageSelectActivity"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Design.NoActionBar" />

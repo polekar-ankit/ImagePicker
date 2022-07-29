@@ -4,7 +4,7 @@ apply plugin: 'org.jetbrains.kotlin.android'
 android {
     compileSdkVersion 32
     defaultConfig {
-        applicationId "com.gipl.pickersample"
+        applicationId "com.tap.pickersample"
         minSdkVersion 16
         targetSdkVersion 32
         versionCode 3

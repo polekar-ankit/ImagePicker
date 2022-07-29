@@ -1,15 +1,16 @@
 # ImagePicker
 [![](https://jitpack.io/v/polekar-ankit/ImagePicker.svg)](https://jitpack.io/#polekar-ankit/ImagePicker).
 
+## now we are migrating our library to kotlin.
 Easy to use and configurable library to Pick an image from the Gallery or Capture image using Camera.
 
 It contains source code, help and one sample app to test the functionality.
 To simplify the image pick/capture option we have created ImagePicker library. I hope it will be useful to all.
 
 Features:
-* Pick Gallary Image
+* Pick Gallery Image
 * Capture Camera Image
-* Retrive Image Result as File Path as String or Uri object and Bitmap too.
+* Retrieve Image Result as File Path as String or Uri object and Bitmap too.
 * Handle Runtime Permission for Camera and Storage
 
 ### Installation
@@ -29,27 +30,37 @@ allprojects {
 ### Example
 To view complete source code for the sample, refer repository.
 
+Create object of imagePickerDialog
+```
+imagePickerDialog = new ImagePickerDialog();
+```
+
 In order to use this image picker, you need to set its configuration using PickerConfiguration class.
 ```
-final PickerConfiguration pickerConfiguration = new ImagePickerDialog(this)
+PickerConfiguration pickerConfiguration = PickerConfiguration.build()
 ```
 
 To open image picker dialog
 ```
 // Open custom dialog with icons.
-imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true));
-
-// Open default dialog.
-imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(false));
-```
+imagePickerDialog = imagePickerDialog.show();
+//below method is remove and it is replace ImagePickerDialog.show()
+<!--  ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(true)); -->
+``
 
 In order to get and process selected image, use setImagePickerResult() method of PickerConfiguration class and override methods of PickerResult class.
 ```
-@Override
-public void onReceiveImageList(ArrayList<ImageResult> imageResults) {
-        super.onReceiveImageList(imageResults);
-        int count =  imageResults.size();
-}
+.setImagePickerErrorListener(this::setError)//Listen error
+
+//listen image list
+.setImageListResult(imageResults -> {
+     int count = imageResults != null ? imageResults.size() : 0;
+     setImagesList(imageResults);
+     Toast.makeText(requireContext(), "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
+ })
+
+//listen single image
+.setImagePickerResult(imageResult -> setImage(imageResult.getsImagePath(), imageResult.getImageBitmap()));
 ```
 also
 ## properties of PickerConfiguration
@@ -62,13 +73,16 @@ also
 #### 5.enableMultiSelect(boolean enableMultiSelect)
 #### 6.setMultiSelectImageCount(int multiSelectImageCount):
         if enableMultiSelect property set true then set multi select count
-#### 7.setPickerDialogListener(ImagePicker.IPickerDialogListener pickerDialogListener):
+#### 7.setPickerDialogListener(pickerDialogListener: IPickerDialogListener?):
         use this listener  to track cancel event of dialog 
-#### 8.setImagePickerResult(ImagePicker.IImagePickerResult imagePickerResult):
-	use this listener to get image selection result in following method 
-         a)onImageGet : get image selection result if enableMultiSelect is false 
-         b)onError: return error thrown by image picker dialog 
-         c)onReceiveImageList: get list of images if enableMultiSelect is true  
+#### 8.setImagePickerResult(imagePickerResult: IImageResult?):
+        use this listener to get single image
+#### 9. setImagePickerErrorListener(iImagePickerErrorListener: IImagePickerErrorListener?)
+        this method will listener error thrown by library while picking image
+#### NOTE : OUR OLD  ImagePicker.IImagePickerResult HAS BEEN REMOVE AND SEPARATED IN TO ABOVE THREE LISTENER ALSO WE HAVE CHANGE PACKAGE NAME
+
+
+
 ### ScreenShot	 	 
 <img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183237.png" alt="alt text" width="200" height="400"> <img src="https://github.com/polekar-ankit/ImagePicker/blob/master/screenshot/device-2020-04-22-183322.png" alt="alt text" width="200" height="400">
 
