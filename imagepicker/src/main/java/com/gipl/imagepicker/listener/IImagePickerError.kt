@@ -1,7 +1,8 @@
-package com.gipl.imagepicker.listener;
+package com.gipl.imagepicker.listener
 
-import com.gipl.imagepicker.exceptions.ImageErrors;
+import com.gipl.imagepicker.models.ImageResult
+import com.gipl.imagepicker.exceptions.ImageErrors
 
-public interface IImagePickerError {
-   public void onError(ImageErrors imageErrors);
+interface IImagePickerError {
+    fun onError(imageErrors: ImageErrors?)
 }

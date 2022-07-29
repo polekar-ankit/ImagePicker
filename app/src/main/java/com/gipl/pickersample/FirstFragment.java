@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultRegistry;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -19,13 +18,8 @@ import androidx.fragment.app.Fragment;
 
 import com.gipl.imagepicker.ImagePickerDialog;
 import com.gipl.imagepicker.exceptions.ImageErrors;
-import com.gipl.imagepicker.listener.IImageListResult;
-import com.gipl.imagepicker.listener.IImagePickerError;
-import com.gipl.imagepicker.listener.IImageResult;
-import com.gipl.imagepicker.listener.IPickerDialogListener;
 import com.gipl.imagepicker.models.ImageResult;
 import com.gipl.imagepicker.models.PickerConfiguration;
-import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
 import com.gipl.pickersample.databinding.FragmentFirstBinding;
 
 import java.io.File;
@@ -67,7 +61,7 @@ public class FirstFragment extends Fragment {
                 .setPickerDialogListener(() -> Toast.makeText(requireContext(), "Cancel", Toast.LENGTH_SHORT).show())
                 .setImagePickerError(this::setError)
                 .setImageListResult(imageResults -> {
-                    int count = imageResults.size();
+                    int count = imageResults != null ? imageResults.size() : 0;
                     setImagesList(imageResults);
                     Toast.makeText(requireContext(), "Found image list with " + count + " images Successfully added", Toast.LENGTH_SHORT).show();
                 })

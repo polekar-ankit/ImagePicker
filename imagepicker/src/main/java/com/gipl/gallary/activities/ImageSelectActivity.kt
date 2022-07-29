@@ -1,353 +1,301 @@
-package com.gipl.gallary.activities;
+package com.gipl.gallary.activities
 
-import android.annotation.SuppressLint;
-import androidx.lifecycle.MutableLiveData;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.os.Message;
-import android.os.Process;
-import android.os.SystemClock;
-import android.provider.MediaStore;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import com.gipl.gallary.adapter.CustomImageSelectAdapter;
-import com.gipl.gallary.helpers.ConstantsCustomGallery;
-import com.gipl.gallary.models.Image;
-import com.gipl.imagepicker.R;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import android.content.Intent
+import android.os.Bundle
+import android.os.Message
+import android.os.Process
+import android.os.SystemClock
+import android.provider.MediaStore
+import android.util.Log
+import android.view.MenuItem
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.gipl.gallary.adapter.CustomImageSelectAdapter
+import com.gipl.gallary.helpers.ConstantsCustomGallery
+import com.gipl.gallary.models.Image
+import com.gipl.imagepicker.R
+import java.io.File
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
- * Created by MyInnos on 03-11-2016.
+ * Created by Ankit on 03-11-2016.
  */
-public class ImageSelectActivity extends HelperActivity {
-    private final String[] projection = new String[]{MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA};
-    MutableLiveData<ArrayList<Image>> imageMutableLiveData = new MutableLiveData<>();
+class ImageSelectActivity : HelperActivity() {
+    private val projection = arrayOf(
+        MediaStore.Images.Media._ID,
+        MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA
+    )
+    var imageMutableLiveData = MutableLiveData<ArrayList<Image>>()
+
     //    private ContentObserver observer;
-    MutableLiveData<Message> messageMutableLiveData = new MutableLiveData<>();
-    ExecutorService executors;
+    var messageMutableLiveData = MutableLiveData<Message>()
+    var executors: ExecutorService? = null
+
     //    private ArrayList<Image> images;
-    private String album;
-    private TextView errorDisplay, tvProfile, tvAdd, tvSelectCount;
-    private LinearLayout liFinish;
-    private ProgressBar loader;
+    private var album: String? = null
+    private var errorDisplay: TextView? = null
+    private var tvProfile: TextView? = null
+    private var tvAdd: TextView? = null
+    private var tvSelectCount: TextView? = null
+    private var liFinish: LinearLayout? = null
+    private var loader: ProgressBar? = null
+
     //    private int countSelected;
-    private RecyclerView gridView;
+    private var gridView: RecyclerView? = null
+
     //    private Handler handler;
-    private CustomImageSelectAdapter adapter;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_select);
-        setView(findViewById(R.id.layout_image_select));
-
-        tvProfile = findViewById(R.id.tvProfile);
-        tvAdd = findViewById(R.id.tvAdd);
-        tvSelectCount = findViewById(R.id.tvSelectCount);
-        tvProfile.setText(R.string.image_view);
-        liFinish = findViewById(R.id.liFinish);
-
-        Intent intent = getIntent();
+    private var adapter: CustomImageSelectAdapter? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_image_select)
+        setView(findViewById(R.id.layout_image_select))
+        tvProfile = findViewById(R.id.tvProfile)
+        tvAdd = findViewById(R.id.tvAdd)
+        tvSelectCount = findViewById(R.id.tvSelectCount)
+        tvProfile?.setText(R.string.image_view)
+        liFinish = findViewById(R.id.liFinish)
+        val intent = intent
         if (intent == null) {
-            finish();
+            finish()
         }
-        album = intent.getStringExtra(ConstantsCustomGallery.INTENT_EXTRA_ALBUM);
-
-        errorDisplay = findViewById(R.id.text_view_error);
-        errorDisplay.setVisibility(View.INVISIBLE);
-
-        loader = findViewById(R.id.loader);
-        gridView = findViewById(R.id.grid_view_image_select);
-        gridView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new CustomImageSelectAdapter();
-        gridView.setAdapter(adapter);
-
-        checkPermission();
-
-        imageMutableLiveData.observe(this, images -> adapter.addItems(images));
-        messageMutableLiveData.observe(this, this::processMessage);
-        adapter.setiItemClickListener(image -> {
-            tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));
-            tvSelectCount.setVisibility(View.VISIBLE);
-            tvAdd.setVisibility(View.VISIBLE);
-            tvProfile.setVisibility(View.GONE);
-
-            if (adapter.getCountSelected() == 0) {
-                //actionMode.finish();
-                tvSelectCount.setVisibility(View.GONE);
-                tvAdd.setVisibility(View.GONE);
-                tvProfile.setVisibility(View.VISIBLE);
+        album = intent?.getStringExtra(ConstantsCustomGallery.INTENT_EXTRA_ALBUM)
+        errorDisplay = findViewById(R.id.text_view_error)
+        errorDisplay?.visibility = View.INVISIBLE
+        loader = findViewById(R.id.loader)
+        gridView = findViewById(R.id.grid_view_image_select)
+        gridView?.layoutManager = GridLayoutManager(this, 3)
+        adapter = CustomImageSelectAdapter()
+        gridView?.adapter = adapter
+        checkPermission()
+        imageMutableLiveData.observe(this) {
+            adapter?.addItems(it)
+        }
+        messageMutableLiveData.observe(this) { message: Message -> processMessage(message) }
+        adapter?.setiItemClickListener(object : CustomImageSelectAdapter.IItemClickListener {
+            override fun onItemClick(image: Image?) {
+                tvSelectCount?.text = String.format(
+                    "%d %s",
+                    adapter?.countSelected,
+                    getString(R.string.selected)
+                )
+                tvSelectCount?.setVisibility(View.VISIBLE)
+                tvAdd?.setVisibility(View.VISIBLE)
+                tvProfile?.setVisibility(View.GONE)
+                if (adapter?.countSelected == 0) {
+                    tvSelectCount?.visibility = View.GONE
+                    tvAdd?.visibility = View.GONE
+                    tvProfile?.visibility = View.VISIBLE
+                }
             }
-        });
 
-
-        liFinish.setOnClickListener(v -> {
-            if (tvSelectCount.getVisibility() == View.VISIBLE) {
-                adapter.deselectAll();
-                finish();
-                tvSelectCount.setText("");
+        })
+        liFinish?.setOnClickListener { v: View? ->
+            if (tvSelectCount?.visibility == View.VISIBLE) {
+                adapter?.deselectAll()
+                finish()
+                tvSelectCount?.text = ""
             } else {
-                finish();
+                finish()
                 //overridePendingTransition(ac, abc_fade_out);
             }
-        });
-
-        tvAdd.setOnClickListener(v -> sendIntent());
+        }
+        tvAdd?.setOnClickListener { sendIntent() }
     }
 
-    private void processMessage(Message message) {
-        switch (message.what) {
-            case ConstantsCustomGallery.PERMISSION_GRANTED: {
-                loadImages();
-                break;
+    private fun processMessage(message: Message) {
+        when (message.what) {
+            ConstantsCustomGallery.PERMISSION_GRANTED -> {
+                loadImages()
             }
-
-            case ConstantsCustomGallery.FETCH_STARTED: {
-                adapter.getImages().clear();
-                loader.setVisibility(View.VISIBLE);
-                gridView.setVisibility(View.VISIBLE);
-                break;
+            ConstantsCustomGallery.FETCH_STARTED -> {
+                adapter?.images?.clear()
+                loader?.visibility = View.VISIBLE
+                gridView?.visibility = View.VISIBLE
             }
+            ConstantsCustomGallery.FETCH_COMPLETED -> {
 
-            case ConstantsCustomGallery.FETCH_COMPLETED: {
-                        /*
+                /*
                         If adapter is null, this implies that the loaded images will be shown
                         for the first time, hence send FETCH_COMPLETED message.
                         However, if adapter has been initialised, this thread was run either
                         due to the activity being restarted or content being changed.
-                         */
-                loader.setVisibility(View.GONE);
-                gridView.setVisibility(View.VISIBLE);
+                         */loader?.visibility = View.GONE
+                gridView?.visibility = View.VISIBLE
 
-                            /*
+                /*
                             Some selected images may have been deleted
                             hence update action mode title
                              */
 
-               //adapter.setCountSelected(message.arg1);
-                if (adapter.getCountSelected() > 0) {
+                //adapter.setCountSelected(message.arg1);
+                if ((adapter?.countSelected ?: 0) > 0) {
                     //actionMode.setTitle(countSelected + " " + getString(R.string.selected));
-                    tvSelectCount.setText(String.format("%d %s", adapter.getCountSelected(), getString(R.string.selected)));
-                    tvSelectCount.setVisibility(View.VISIBLE);
-                    tvAdd.setVisibility(View.VISIBLE);
-                } else
-                    tvAdd.setVisibility(View.GONE);
-
-                tvProfile.setVisibility(View.GONE);
-
-
-                break;
+                    tvSelectCount?.text =
+                        String.format(
+                            "%d %s",
+                            adapter?.countSelected,
+                            getString(R.string.selected)
+                        )
+                    tvSelectCount?.visibility = View.VISIBLE
+                    tvAdd?.visibility = View.VISIBLE
+                } else tvAdd?.visibility = View.GONE
+                tvProfile?.visibility = View.GONE
             }
-
-            case ConstantsCustomGallery.ERROR: {
-                loader.setVisibility(View.GONE);
-                errorDisplay.setVisibility(View.VISIBLE);
-                break;
-            }
-
-        }
-    }
-
-    @SuppressLint("HandlerLeak")
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-//        getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, observer);
-
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        executors.shutdown();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-//        orientationBasedUI(newConfig.orientation);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home: {
-                onBackPressed();
-                return true;
-            }
-
-            default: {
-                return false;
+            ConstantsCustomGallery.ERROR -> {
+                loader?.visibility = View.GONE
+                errorDisplay?.visibility = View.VISIBLE
             }
         }
     }
 
-    private void sendIntent() {
-        Intent intent = new Intent();
-        intent.putParcelableArrayListExtra(ConstantsCustomGallery.INTENT_EXTRA_IMAGES, adapter.getSelected());
-        setResult(RESULT_OK, intent);
-        finish();
-        //overridePendingTransition(abc_fade_in, abc_fade_out);
+
+    override fun onStop() {
+        super.onStop()
+        executors?.shutdown()
     }
 
-
-    private void loadImages() {
-        executors = Executors.newSingleThreadExecutor();
-        executors.submit(new ImageLoaderRunnable());
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> {
+                false
+            }
+        }
     }
 
-
-    private void sendMessage(int what) {
-        sendMessage(what, 0);
+    private fun sendIntent() {
+        val intent = Intent()
+        intent.putParcelableArrayListExtra(
+            ConstantsCustomGallery.INTENT_EXTRA_IMAGES,
+            adapter?.selected
+        )
+        setResult(RESULT_OK, intent)
+        finish()
     }
 
-    private void sendMessage(int what, int arg1) {
-
-        Message message = new Message();
-        message.what = what;
-        message.arg1 = arg1;
-        messageMutableLiveData.postValue(message);
+    private fun loadImages() {
+        executors = Executors.newSingleThreadExecutor()
+        executors?.submit(ImageLoaderRunnable())
     }
 
-    @Override
-    protected void permissionGranted() {
-        sendMessage(ConstantsCustomGallery.PERMISSION_GRANTED);
+    private fun sendMessage(what: Int, arg1: Int = 0) {
+        val message = Message()
+        message.what = what
+        message.arg1 = arg1
+        messageMutableLiveData.postValue(message)
     }
 
-    @Override
-    protected void hideViews() {
-        loader.setVisibility(View.GONE);
-        gridView.setVisibility(View.INVISIBLE);
+    override fun permissionGranted() {
+        sendMessage(ConstantsCustomGallery.PERMISSION_GRANTED)
     }
 
-    @Override
-    public void onBackPressed() {
-        if (adapter.getCountSelected() > 0) {
-            tvProfile.setVisibility(View.VISIBLE);
-            tvSelectCount.setText("");
-            tvAdd.setVisibility(View.GONE);
-            tvSelectCount.setVisibility(View.GONE);
-            adapter.deselectAll();
-            super.onBackPressed();
+    override fun hideViews() {
+        loader?.visibility = View.GONE
+        gridView?.visibility = View.INVISIBLE
+    }
+
+    override fun onBackPressed() {
+        if ((adapter?.countSelected ?: 0) > 0) {
+            tvProfile?.visibility = View.VISIBLE
+            tvSelectCount?.text = ""
+            tvAdd?.visibility = View.GONE
+            tvSelectCount?.visibility = View.GONE
+            adapter?.deselectAll()
+            super.onBackPressed()
         } else {
-            super.onBackPressed();
+            super.onBackPressed()
             //overridePendingTransition(abc_fade_in, abc_fade_out);
 //            finish();
         }
-
     }
 
-    private class ImageLoaderRunnable implements Runnable {
-        @Override
-        public void run() {
-
-            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+    private inner class ImageLoaderRunnable : Runnable {
+        override fun run() {
+            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
             /*
             If the adapter is null, this is first time this activity's view is
             being shown, hence send FETCH_STARTED message to show progress bar
             while images are loaded from phone
-             */
-            sendMessage(ConstantsCustomGallery.FETCH_STARTED);
-
-            File file;
-            HashSet<Long> selectedImages = new HashSet<>();
-            if (adapter.getItemCount() > 0) {
-                Image image;
-                for (int i = 0, l = adapter.getItemCount(); i < l; i++) {
-                    image = adapter.getImages().get(i);
-                    file = new File(image.path);
-                    if (file.exists() && image.isSelected) {
-                        selectedImages.add(image.id);
+             */sendMessage(ConstantsCustomGallery.FETCH_STARTED)
+            var file: File?
+            val selectedImages = HashSet<Long>()
+            if ((adapter?.itemCount ?: 0) > 0) {
+                var image: Image?
+                var i = 0
+                val l = adapter?.itemCount ?: 0
+                while (i < l) {
+                    image = adapter?.images?.get(i)
+                    file = image?.path?.let { File(it) }
+                    if (file?.exists() == true && image?.isSelected == true) {
+                        image.id.let { selectedImages.add(it) }
                     }
+                    i++
                 }
             }
-
-            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?",
-                    new String[]{album}, MediaStore.Images.Media.DATE_ADDED);
+            val cursor = contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?",
+                arrayOf(album),
+                MediaStore.Images.Media.DATE_ADDED
+            )
             if (cursor == null) {
-                sendMessage(ConstantsCustomGallery.ERROR);
-                return;
+                sendMessage(ConstantsCustomGallery.ERROR)
+                return
             }
-
-            int tempCountSelected = 0;
-            int lastSendPos = 0;
-            int counter = 0;
+            var tempCountSelected = 0
+            var lastSendPos = 0
+            var counter = 0
             if (cursor.moveToLast()) {
-                ArrayList<Image> images = new ArrayList<>();
+                val images = ArrayList<Image>()
                 do {
-                    if (executors.isShutdown()) {
-                        return;
+                    if (executors?.isShutdown == true) {
+                        return
                     }
-
-                    long id = cursor.getLong(cursor.getColumnIndex(projection[0]));
-                    String name = cursor.getString(cursor.getColumnIndex(projection[1]));
-                    String path = cursor.getString(cursor.getColumnIndex(projection[2]));
-                    boolean isSelected = selectedImages.contains(id);
-
+                    val id = cursor.getLong(cursor.getColumnIndex(projection[0]))
+                    val name = cursor.getString(cursor.getColumnIndex(projection[1]))
+                    val path = cursor.getString(cursor.getColumnIndex(projection[2]))
+                    val isSelected = selectedImages.contains(id)
                     if (isSelected) {
-                        tempCountSelected++;
+                        tempCountSelected++
                     }
-
-                    file = null;
+                    file = null
                     try {
-                        file = new File(path);
-                    } catch (Exception e) {
-                        Log.d("Exception : ", e.toString());
+                        file = File(path)
+                    } catch (e: Exception) {
+                        Log.d("Exception : ", e.toString())
+                    }
+                    if (file?.exists() == true) {
+                        images.add(Image(id, name, path, isSelected))
+                        counter++
                     }
 
-                    if (file.exists()) {
-                        images.add(new Image(id, name, path, isSelected));
-                        counter++;
-                    }
-//                    if (cursor.getCount() < 20) {
-//                        if (images.size() == cursor.getCount()) {
-//                            imageMutableLiveData.postValue(images);
-//                        }
-//                    } else
                     if (counter == 20) {
-                        int lastPos = images.size();
-                        ArrayList<Image> sendArr = new ArrayList<>(images.subList(lastSendPos, lastPos));
-                        imageMutableLiveData.postValue(sendArr);
-                        SystemClock.sleep(500);
-                        counter = 0;
-                        lastSendPos = lastPos;
-                    } else if (images.size() == cursor.getCount()) {
-                        int lastPos = images.size();
-                        ArrayList<Image> sendArr = new ArrayList<>(images.subList(lastSendPos, lastPos));
-                        imageMutableLiveData.postValue(sendArr);
+                        val lastPos = images.size
+                        val sendArr = ArrayList(images.subList(lastSendPos, lastPos))
+                        imageMutableLiveData.postValue(sendArr)
+                        SystemClock.sleep(500)
+                        counter = 0
+                        lastSendPos = lastPos
+                    } else if (images.size == cursor.count) {
+                        val lastPos = images.size
+                        val sendArr = ArrayList(images.subList(lastSendPos, lastPos))
+                        imageMutableLiveData.postValue(sendArr)
                     }
-                } while (cursor.moveToPrevious());
+                } while (cursor.moveToPrevious())
 
-//                imageMutableLiveData.postValue(images);
             }
-            cursor.close();
-            sendMessage(ConstantsCustomGallery.FETCH_COMPLETED, tempCountSelected);
+            cursor.close()
+            sendMessage(ConstantsCustomGallery.FETCH_COMPLETED, tempCountSelected)
         }
     }
 }

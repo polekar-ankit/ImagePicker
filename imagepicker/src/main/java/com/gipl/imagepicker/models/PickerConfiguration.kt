@@ -1,177 +1,134 @@
-package com.gipl.imagepicker.models;
+package com.gipl.imagepicker.models
 
-import android.graphics.Color;
-
-import com.gipl.imagepicker.listener.IImageListResult;
-import com.gipl.imagepicker.listener.IImagePickerError;
-import com.gipl.imagepicker.listener.IImageResult;
-import com.gipl.imagepicker.listener.IPickerDialogListener;
+import android.graphics.Color
+import com.gipl.imagepicker.listener.IPickerDialogListener
+import com.gipl.imagepicker.listener.IImageResult
+import com.gipl.imagepicker.listener.IImageListResult
+import com.gipl.imagepicker.listener.IImagePickerError
+import com.gipl.imagepicker.models.PickerConfiguration
 
 /**
  * Creted by User on 25-Jan-19
  */
+class PickerConfiguration private constructor() {
+    var textColor: Int
+        private set
+    var iconColor = 0
+        private set
+    private var fIsDialogCancelable: Boolean
+    var backGroundColor: Int
+        private set
+    var cameraImageId: Int
+        private set
+    var galleryImageId: Int
+        private set
+    var isEnableMultiSelect: Boolean
+        private set
+    var pickerDialogListener: IPickerDialogListener? = null
+        private set
+    var imagePickerResult: IImageResult? = null
+        private set
+    var imageListResult: IImageListResult? = null
+        private set
+    var imagePickerError: IImagePickerError? = null
+        private set
+    var cameraTitle: String
+        private set
+    var galleryTitle: String
+        private set
+    var multiSelectImageCount: Int
+        private set
 
-public class PickerConfiguration {
-
-    private int colorCodeText;
-    private int colorCodeIcon;
-    private boolean fIsDialogCancelable;
-    private int nBackGroundColor;
-    private int cameraImageId;
-    private int galleryImageId;
-    private boolean isEnableMultiSelect;
-    private IPickerDialogListener pickerDialogListener;
-    private IImageResult imagePickerResult;
-    private IImageListResult iImageListResult;
-    private IImagePickerError iImagePickerError;
-    private String sCameraTitle;
-    private String sGalleryTitle;
-    private int multiSelectImageCount;
-
-    private PickerConfiguration() {
-        colorCodeText = Color.BLACK;
-        nBackGroundColor = Color.WHITE;
-        fIsDialogCancelable = true;
-        cameraImageId = -1;
-        galleryImageId = -1;
-        sCameraTitle = "";
-        sGalleryTitle = "";
-        isEnableMultiSelect = false;
-        multiSelectImageCount = 1;
-
+    fun setImageListResult(iImageListResult: IImageListResult?): PickerConfiguration {
+        imageListResult = iImageListResult
+        return this
     }
 
-    public static PickerConfiguration build() {
-        return new PickerConfiguration();
+    fun setImagePickerError(iImagePickerError: IImagePickerError?): PickerConfiguration {
+        imagePickerError = iImagePickerError
+        return this
     }
 
-    public IImageListResult getImageListResult() {
-        return iImageListResult;
+    fun setMultiSelectImageCount(multiSelectImageCount: Int): PickerConfiguration {
+        this.multiSelectImageCount = multiSelectImageCount
+        return this
     }
 
-    public PickerConfiguration setImageListResult(IImageListResult iImageListResult) {
-        this.iImageListResult = iImageListResult;
-        return this;
+    fun enableMultiSelect(enableMultiSelect: Boolean): PickerConfiguration {
+        isEnableMultiSelect = enableMultiSelect
+        return this
     }
 
-    public IImagePickerError getImagePickerError() {
-        return iImagePickerError;
+    fun setImagePickerResult(imagePickerResult: IImageResult?): PickerConfiguration {
+        this.imagePickerResult = imagePickerResult
+        return this
     }
 
-    public PickerConfiguration setImagePickerError(IImagePickerError iImagePickerError) {
-        this.iImagePickerError = iImagePickerError;
-        return this;
+    fun setPickerDialogListener(pickerDialogListener: IPickerDialogListener?): PickerConfiguration {
+        this.pickerDialogListener = pickerDialogListener
+        return this
     }
 
-    public int getMultiSelectImageCount() {
-        return multiSelectImageCount;
+    fun setBackGroundColor(nBackGroundColor: Int): PickerConfiguration {
+        backGroundColor = nBackGroundColor
+        return this
     }
 
-    public PickerConfiguration setMultiSelectImageCount(int multiSelectImageCount) {
-        this.multiSelectImageCount = multiSelectImageCount;
-        return this;
+    fun setTextColor(colorCode: Int): PickerConfiguration {
+        textColor = colorCode
+        return this
     }
 
-    public boolean isEnableMultiSelect() {
-        return isEnableMultiSelect;
+    fun isfIsDialogCancelable(): Boolean {
+        return fIsDialogCancelable
     }
 
-    public PickerConfiguration enableMultiSelect(boolean enableMultiSelect) {
-        isEnableMultiSelect = enableMultiSelect;
-        return this;
+    fun setIsDialogCancelable(fIsDialogCancelable: Boolean): PickerConfiguration {
+        this.fIsDialogCancelable = fIsDialogCancelable
+        return this
     }
 
-    public IImageResult getImagePickerResult() {
-        return imagePickerResult;
+    fun setIconColor(colorCodeIcon: Int): PickerConfiguration {
+        iconColor = colorCodeIcon
+        return this
     }
 
-    public PickerConfiguration setImagePickerResult(IImageResult imagePickerResult) {
-        this.imagePickerResult = imagePickerResult;
-        return this;
+    fun setCameraImageId(cameraImageId: Int): PickerConfiguration {
+        this.cameraImageId = cameraImageId
+        return this
     }
 
-    public IPickerDialogListener getPickerDialogListener() {
-        return pickerDialogListener;
+    fun setGalleryImageId(galleryImageId: Int): PickerConfiguration {
+        this.galleryImageId = galleryImageId
+        return this
     }
 
-    public PickerConfiguration setPickerDialogListener(IPickerDialogListener pickerDialogListener) {
-        this.pickerDialogListener = pickerDialogListener;
-        return this;
+    fun setCameraTitle(sCameraTitle: String): PickerConfiguration {
+        cameraTitle = sCameraTitle
+        return this
     }
 
-    public int getBackGroundColor() {
-        return nBackGroundColor;
+    fun setGalleryTitle(sGalleryTitle: String): PickerConfiguration {
+        galleryTitle = sGalleryTitle
+        return this
     }
 
-    public PickerConfiguration setBackGroundColor(int nBackGroundColor) {
-        this.nBackGroundColor = nBackGroundColor;
-        return this;
+    companion object {
+        @JvmStatic
+        fun build(): PickerConfiguration {
+            return PickerConfiguration()
+        }
     }
 
-
-    public int getTextColor() {
-        return colorCodeText;
+    init {
+        textColor = Color.BLACK
+        backGroundColor = Color.WHITE
+        fIsDialogCancelable = true
+        cameraImageId = -1
+        galleryImageId = -1
+        cameraTitle = ""
+        galleryTitle = ""
+        isEnableMultiSelect = false
+        multiSelectImageCount = 1
     }
-
-    public PickerConfiguration setTextColor(int colorCode) {
-        this.colorCodeText = colorCode;
-        return this;
-    }
-
-    public boolean isfIsDialogCancelable() {
-        return fIsDialogCancelable;
-    }
-
-    public PickerConfiguration setIsDialogCancelable(boolean fIsDialogCancelable) {
-        this.fIsDialogCancelable = fIsDialogCancelable;
-        return this;
-    }
-
-
-    public int getIconColor() {
-        return colorCodeIcon;
-    }
-
-    public PickerConfiguration setIconColor(int colorCodeIcon) {
-        this.colorCodeIcon = colorCodeIcon;
-        return this;
-    }
-
-    public int getCameraImageId() {
-        return cameraImageId;
-    }
-
-    public PickerConfiguration setCameraImageId(int cameraImageId) {
-        this.cameraImageId = cameraImageId;
-        return this;
-    }
-
-    public int getGalleryImageId() {
-        return galleryImageId;
-    }
-
-    public PickerConfiguration setGalleryImageId(int galleryImageId) {
-        this.galleryImageId = galleryImageId;
-        return this;
-    }
-
-    public String getCameraTitle() {
-        return sCameraTitle;
-    }
-
-    public PickerConfiguration setCameraTitle(String sCameraTitle) {
-        this.sCameraTitle = sCameraTitle;
-        return this;
-    }
-
-    public String getGalleryTitle() {
-        return sGalleryTitle;
-    }
-
-    public PickerConfiguration setGalleryTitle(String sGalleryTitle) {
-        this.sGalleryTitle = sGalleryTitle;
-        return this;
-    }
-
-
 }

@@ -1,55 +1,44 @@
-package com.gipl.gallary.adapter;
+package com.gipl.gallary.adapter
 
-import android.app.Activity;
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.widget.BaseAdapter;
-
-import java.util.ArrayList;
+import android.app.Activity
+import android.content.Context
+import android.view.LayoutInflater
+import android.widget.BaseAdapter
 
 /**
- * Created by MyInnos on 03-11-2016.
+ * Created by Ankit on 03-11-2016.
  */
-public abstract class CustomGenericAdapter<T> extends BaseAdapter {
-    protected ArrayList<T> arrayList;
-    protected Context context;
-    protected Activity activity;
-    protected LayoutInflater layoutInflater;
-
-    protected int size;
-
-    public CustomGenericAdapter(Activity activity, Context context, ArrayList<T> arrayList) {
-        this.arrayList = arrayList;
-        this.context = context;
-        this.activity = activity;
-        this.layoutInflater = LayoutInflater.from(this.context);
+abstract class CustomGenericAdapter<T>(
+    protected var activity: Activity?,
+    protected var context: Context?,
+    protected var arrayList: ArrayList<T>
+) : BaseAdapter() {
+    protected var layoutInflater: LayoutInflater = LayoutInflater.from(context)
+    protected var size = 0
+    override fun getCount(): Int {
+        return arrayList.size
     }
 
-    @Override
-    public int getCount() {
-        return arrayList.size();
+    fun addItem(arrayList: ArrayList<T>?) {
+        this.arrayList.addAll(arrayList!!)
     }
 
-    public void addItem(ArrayList<T> arrayList){
-        this.arrayList.addAll(arrayList);
+    override fun getItem(position: Int): T {
+        return arrayList[position]
     }
 
-    public T getItem(int position) {
-        return arrayList.get(position);
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
     }
 
-    @Override
-    public long getItemId(int position) {
-        return position;
+    fun setLayoutParams(size: Int) {
+        this.size = size
     }
 
-    public void setLayoutParams(int size) {
-        this.size = size;
+    fun releaseResources() {
+        arrayList = ArrayList()
+        context = null
+        activity = null
     }
 
-    public void releaseResources() {
-        arrayList = null;
-        context = null;
-        activity = null;
-    }
 }

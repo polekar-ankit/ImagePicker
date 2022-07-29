@@ -1,51 +1,50 @@
-package com.gipl.gallary.models;
+package com.gipl.gallary.models
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcelable
+import android.os.Parcel
 
 /**
- * Created by MyInnos on 03-11-2016.
+ * Created by Ankit on 03-11-2016.
  */
-public class Image implements Parcelable {
-    public long id;
-    public String name;
-    public String path;
-    public boolean isSelected;
+class Image() : Parcelable {
+    var id: Long = 0
+    var name: String? = null
+    var path: String? = null
+    var isSelected = false
 
-    public Image(long id, String name, String path, boolean isSelected) {
-        this.id = id;
-        this.name = name;
-        this.path = path;
-        this.isSelected = isSelected;
+    constructor(parcel: Parcel) : this() {
+        id = parcel.readLong()
+        name = parcel.readString()
+        path = parcel.readString()
+        isSelected = parcel.readByte() != 0.toByte()
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    constructor(id: Long, name: String?, path: String?, isSelected: Boolean) : this() {
+        this.id = id
+        this.name = name
+        this.path = path
+        this.isSelected = isSelected
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeString(name);
-        dest.writeString(path);
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public static final Creator<Image> CREATOR = new Creator<Image>() {
-        @Override
-        public Image createFromParcel(Parcel source) {
-            return new Image(source);
+    override fun writeToParcel(dest: Parcel, p1: Int) {
+        dest.writeLong(id)
+        dest.writeString(name)
+        dest.writeString(path)
+    }
+
+    companion object CREATOR : Parcelable.Creator<Image> {
+        override fun createFromParcel(parcel: Parcel): Image {
+            return Image(parcel)
         }
 
-        @Override
-        public Image[] newArray(int size) {
-            return new Image[size];
+        override fun newArray(size: Int): Array<Image?> {
+            return arrayOfNulls(size)
         }
-    };
-
-    private Image(Parcel in) {
-        id = in.readLong();
-        name = in.readString();
-        path = in.readString();
     }
+
+
 }

@@ -7,19 +7,15 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
-import com.gipl.imagepicker.exceptions.ImageErrors;
 import com.gipl.imagepicker.ImagePickerDialog;
-import com.gipl.imagepicker.listener.IImageListResult;
-import com.gipl.imagepicker.listener.IImageResult;
+import com.gipl.imagepicker.exceptions.ImageErrors;
 import com.gipl.imagepicker.listener.IPickerDialogListener;
 import com.gipl.imagepicker.models.ImageResult;
 import com.gipl.imagepicker.models.PickerConfiguration;

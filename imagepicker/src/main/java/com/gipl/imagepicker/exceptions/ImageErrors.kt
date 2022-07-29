@@ -1,22 +1,20 @@
-package com.gipl.imagepicker.exceptions;
+package com.gipl.imagepicker.exceptions
 
-public class ImageErrors extends Exception {
-    public static final int PERMISSION_ERROR = 1231;
-    public static final int DIR_ERROR = 1232;
-    public static final int IMAGE_ERROR = 1233;
-    public static final int IMAGE_PICK_CANCEL = 1234;
-    private int nErrorType;
+import java.lang.Exception
 
-    public ImageErrors(String message) {
-        super(message);
+class ImageErrors : Exception {
+    var errorType = 0
+        private set
+
+    private constructor(message: String?) : super(message) {}
+    constructor(message: String?, nErrorType: Int) : super(message) {
+        errorType = nErrorType
     }
 
-    public ImageErrors(String message, int nErrorType) {
-        super(message);
-        this.nErrorType = nErrorType;
-    }
-
-    public int getErrorType() {
-        return nErrorType;
+    companion object {
+        const val PERMISSION_ERROR = 1231
+        const val DIR_ERROR = 1232
+        const val IMAGE_ERROR = 1233
+        const val IMAGE_PICK_CANCEL = 1234
     }
 }

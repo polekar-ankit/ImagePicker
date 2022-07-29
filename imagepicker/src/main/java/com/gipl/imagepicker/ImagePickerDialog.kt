@@ -1,124 +1,106 @@
-package com.gipl.imagepicker;
+package com.gipl.imagepicker
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.fragment.app.DialogFragment;
-
-import com.gipl.imagepicker.listener.IImageResult;
-import com.gipl.imagepicker.listener.IPickerDialogListener;
-import com.gipl.imagepicker.models.PickerConfiguration;
-import com.gipl.imagepicker.resultwatcher.PickerResultObserver;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.fragment.app.DialogFragment
+import com.gipl.imagepicker.listener.IImageResult
+import com.gipl.imagepicker.listener.IPickerDialogListener
+import com.gipl.imagepicker.models.PickerConfiguration
+import com.gipl.imagepicker.resultwatcher.PickerResultObserver
 
 /**
- * Created by User on 25-Jan-19
+ * Created by Ankit on 25-Jan-19
  */
-public class ImagePickerDialog extends DialogFragment {
-    private ImagePicker imagePicker;
-    private IPickerDialogListener pickerDialogListener;
-    private PickerConfiguration pickerConfiguration;
-
-    public void setPickerConfiguration(PickerConfiguration pickerConfiguration) {
-        this.pickerConfiguration = pickerConfiguration;
+class ImagePickerDialog : DialogFragment() {
+    private var imagePicker: ImagePicker? = null
+    private var pickerDialogListener: IPickerDialogListener? = null
+    private lateinit var pickerConfiguration: PickerConfiguration
+    fun setPickerConfiguration(pickerConfiguration: PickerConfiguration) {
+        this.pickerConfiguration = pickerConfiguration
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        PickerResultObserver pickerResultObserver = new PickerResultObserver(requireActivity().getActivityResultRegistry());
-        getLifecycle().addObserver(pickerResultObserver);
-
-        imagePicker = new ImagePicker(requireContext())
-                .setIMAGE_PATH("AppImages")
-                .setStoreInMyPath(true);
-
-        imagePicker.setPikcerResultOberver(pickerResultObserver);
-        pickerResultObserver.setImagePicker(imagePicker);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val pickerResultObserver = PickerResultObserver(requireActivity().activityResultRegistry)
+        lifecycle.addObserver(pickerResultObserver)
+        imagePicker = ImagePicker(requireContext())
+            .setIMAGE_PATH("AppImages")
+            .setStoreInMyPath(true)
+        imagePicker?.setPikcerResultOberver(pickerResultObserver)
+        pickerResultObserver.setImagePicker(imagePicker)
     }
 
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.layout_custom_image_picker, container, false);
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.layout_custom_image_picker, container, false)
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        IImageResult iImageResult = pickerConfiguration.getImagePickerResult();
-        imagePicker.setImagePickerResult(iImageResult);
-        imagePicker.setImageListResult(pickerConfiguration.getImageListResult());
-        imagePicker.setImagePickerError(pickerConfiguration.getImagePickerError());
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val iImageResult: IImageResult? = pickerConfiguration.imagePickerResult
+        imagePicker?.setImagePickerResult(iImageResult)
+        imagePicker?.setImageListResult(pickerConfiguration.imageListResult)
+        imagePicker?.setImagePickerError(pickerConfiguration.imagePickerError)
+        pickerDialogListener = pickerConfiguration.pickerDialogListener
+        imagePicker?.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect)
+        imagePicker?.setMultiSelectCount(pickerConfiguration.multiSelectImageCount)
+        isCancelable = pickerConfiguration.isfIsDialogCancelable() == true
 
+        setCustomView(view)
+        setViewConfig(view)
 
-        pickerDialogListener = pickerConfiguration.getPickerDialogListener();
-        imagePicker.setEnableMultiSelect(pickerConfiguration.isEnableMultiSelect());
-        imagePicker.setMultiSelectCount(pickerConfiguration.getMultiSelectImageCount());
-
-
-        setCancelable(pickerConfiguration.isfIsDialogCancelable());
-        setCancelable(pickerConfiguration.isfIsDialogCancelable());
-
-        setCustomView(view);
-        setViewConfig(view);
-        imagePicker.getCloseDialog().observe(this, aBoolean -> dismiss());
+        imagePicker?.closeDialog?.observe(this) { dismiss() }
     }
 
-
-    private void setViewConfig(View view) {
-        ImageView ivCamera = view.findViewById(R.id.iv_camera);
-        ImageView ivGallery = view.findViewById(R.id.iv_galray);
-        TextView tvGallery = view.findViewById(R.id.tv_gallery);
-        TextView tvCamera = view.findViewById(R.id.tv_camera);
-
-        if (pickerConfiguration.getCameraImageId() != -1) {
-            ivCamera.setImageResource(pickerConfiguration.getCameraImageId());
-        } else
-            DrawableCompat.setTint(ivCamera.getDrawable(), pickerConfiguration.getIconColor());
-
-        if (pickerConfiguration.getGalleryImageId() != -1)
-            ivGallery.setImageResource(pickerConfiguration.getGalleryImageId());
-        else
-            DrawableCompat.setTint(ivGallery.getDrawable(), pickerConfiguration.getIconColor());
-
-        if (!pickerConfiguration.getGalleryTitle().isEmpty())
-            tvGallery.setText(pickerConfiguration.getGalleryTitle());
-        if (!pickerConfiguration.getCameraTitle().isEmpty())
-            tvCamera.setText(pickerConfiguration.getCameraTitle());
-
-        tvGallery.setTextColor(pickerConfiguration.getTextColor());
-        tvCamera.setTextColor(pickerConfiguration.getTextColor());
-        ((TextView) view.findViewById(R.id.tv_cancel)).setTextColor(pickerConfiguration.getTextColor());
-
-        view.setBackgroundColor(pickerConfiguration.getBackGroundColor());
+    private fun setViewConfig(view: View) {
+        val ivCamera = view.findViewById<ImageView>(R.id.iv_camera)
+        val ivGallery = view.findViewById<ImageView>(R.id.iv_galray)
+        val tvGallery = view.findViewById<TextView>(R.id.tv_gallery)
+        val tvCamera = view.findViewById<TextView>(R.id.tv_camera)
+        if (pickerConfiguration.cameraImageId != -1) {
+            ivCamera.setImageResource(pickerConfiguration.cameraImageId)
+        } else {
+            DrawableCompat.setTint(ivCamera.drawable, pickerConfiguration.iconColor)
+        }
+        if (pickerConfiguration.galleryImageId != -1) {
+            ivGallery.setImageResource(
+                pickerConfiguration.galleryImageId
+            )
+        } else {
+            DrawableCompat.setTint(ivGallery.drawable, pickerConfiguration.iconColor)
+        }
+        if (pickerConfiguration.galleryTitle.isNotEmpty()) {
+            tvGallery.text =
+                pickerConfiguration.galleryTitle
+        }
+        if (pickerConfiguration.cameraTitle.isNotEmpty()) {
+            tvCamera.text =
+                pickerConfiguration.cameraTitle
+        }
+        tvGallery.setTextColor(pickerConfiguration.textColor)
+        tvCamera.setTextColor(pickerConfiguration.textColor)
+        (view.findViewById<View>(R.id.tv_cancel) as TextView).setTextColor(pickerConfiguration.textColor)
+        view.setBackgroundColor(pickerConfiguration.backGroundColor)
     }
 
-
-    private void setCustomView(View view) {
-        LinearLayout llOpenCamera = view.findViewById(R.id.ll_camera);
-        LinearLayout llOpenGallery = view.findViewById(R.id.ll_gallery);
-        TextView tvCancel = view.findViewById(R.id.tv_cancel);
-
-        llOpenGallery.setOnClickListener(view13 -> {
-            imagePicker.startGallary();
-        });
-        llOpenCamera.setOnClickListener(view12 -> {
-            imagePicker.openCamera();
-        });
-        tvCancel.setOnClickListener(view1 -> {
-            if (pickerDialogListener != null)
-                pickerDialogListener.onCancelClick();
-            dismiss();
-        });
+    private fun setCustomView(view: View) {
+        val llOpenCamera = view.findViewById<LinearLayout>(R.id.ll_camera)
+        val llOpenGallery = view.findViewById<LinearLayout>(R.id.ll_gallery)
+        val tvCancel = view.findViewById<TextView>(R.id.tv_cancel)
+        llOpenGallery.setOnClickListener { view13: View? -> imagePicker?.startGallary() }
+        llOpenCamera.setOnClickListener { view12: View? -> imagePicker?.openCamera() }
+        tvCancel.setOnClickListener {
+            pickerDialogListener?.onCancelClick()
+            dismiss()
+        }
     }
-
 }

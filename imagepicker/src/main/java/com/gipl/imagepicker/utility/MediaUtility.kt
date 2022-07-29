@@ -1,108 +1,144 @@
-package com.gipl.imagepicker.utility;
+package com.gipl.imagepicker.utility
 
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.Context
+import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import com.gipl.imagepicker.utility.MediaUtility.EXTENSIONS
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.util.*
 
 /**
  * USE TO HANDLE MEDIA SUCH AS AUDIO,VIDEO,IMAGE
  */
+object MediaUtility {
+    const val REQUEST_VIDEO_CAPTURE = 345
+    const val CAMERA_REQUEST = 12
+    const val PROFILE_PHOTO = 122
+    const val STORAGE_PERMISSION_REQUEST = 124
 
-public class MediaUtility {
-    public static final int REQUEST_VIDEO_CAPTURE = 345;
-    public static final int CAMERA_REQUEST = 12;
-    public static final int PROFILE_PHOTO = 122;
-    public static final int STORAGE_PERMISSION_REQUEST = 124;
+    fun getBitmap(contentResolver: ContentResolver, uri: Uri): Bitmap {
+        return if (Build.VERSION.SDK_INT < 28) {
+            MediaStore.Images.Media.getBitmap(
+                contentResolver,
+                uri
+            )
 
-
-
-    public static Uri insertImage(Context inContext,Bitmap inImage){
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "title", null);
-        return Uri.parse(path);
-    }
-    public static String getFilePathFromUri(Context context, Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-
-        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(projection[0]);
-            String picturePath = cursor.getString(columnIndex); // returns null
-            cursor.close();
-
-            return picturePath != null ? picturePath : "";
-        } else return "";
+        } else {
+            val source = ImageDecoder.createSource(contentResolver, uri)
+            ImageDecoder.decodeBitmap(source)
+        }
     }
 
+    @JvmStatic
+    fun insertImage(inContext: Context, inImage: Bitmap): Uri? {
+        val bytes = ByteArrayOutputStream()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val cv = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, System.currentTimeMillis().toString())
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                put(MediaStore.Video.Media.IS_PENDING, 1)
+            }
+            val uri =
+                inContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv)
+            val fos = uri?.let { inContext.contentResolver.openOutputStream(it) }
+            fos?.use { inImage.compress(Bitmap.CompressFormat.JPEG, 70, it) }
+            cv.clear()
+            cv.put(MediaStore.Video.Media.IS_PENDING, 0)
+            uri?.let { inContext.contentResolver.update(it, cv, null, null) }
+            return uri
+        } else {
+            inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+            val path =
+                MediaStore.Images.Media.insertImage(
+                    inContext.contentResolver,
+                    inImage,
+                    "title",
+                    null
+                )
+            return Uri.parse(path)
+        }
+    }
 
-    public static class FILE {
+    @JvmStatic
+    fun getFilePathFromUri(context: Context, uri: Uri?): String {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = context.contentResolver.query(uri!!, projection, null, null, null)
+        return if (cursor != null) {
+            cursor.moveToFirst()
+            val columnIndex = cursor.getColumnIndex(projection[0])
+            val picturePath = cursor.getString(columnIndex) // returns null
+            cursor.close()
+            picturePath ?: ""
+        } else ""
+    }
 
-        public static void deleteMediaFile(File mFile) {
+    object FILE {
+        fun deleteMediaFile(mFile: File) {
             if (mFile.exists()) {
-                mFile.delete();
+                mFile.delete()
             }
         }
 
         // Below method SECURE_DIR is remove because from android version 10 for app storage privacy
         // change app image store location has been change to app private directory
-        public static File createImageFile(Context context,/*String SECURE_DIR,*/ String IMAGE_PATH) throws IOException {
-            String sImageFileName = "JPEG_" + UUID.randomUUID().toString() + "_";
-//            File storageDir = new File(Environment.getExternalStorageDirectory() + "/" + SECURE_DIR + "/" + IMAGE_PATH);
-            File storageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) /*+ "/" + SECURE_DIR*/ + "/" + IMAGE_PATH);
+        @JvmStatic
+        @Throws(IOException::class)
+        fun createImageFile(
+            context: Context,  /*String SECURE_DIR,*/
+            IMAGE_PATH: String
+        ): File {
+            val sImageFileName = "JPEG_" + UUID.randomUUID().toString() + "_"
+            //            File storageDir = new File(Environment.getExternalStorageDirectory() + "/" + SECURE_DIR + "/" + IMAGE_PATH);
+            val storageDir = File(
+                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) /*+ "/" + SECURE_DIR*/
+                    .toString() + "/" + IMAGE_PATH
+            )
             if (!storageDir.exists()) {
-                storageDir.mkdirs();
+                storageDir.mkdirs()
             }
-
             return File.createTempFile(
-                    sImageFileName,  /* prefix */
-                    EXTENSIONS.IMAGE,         /* suffix */
-                    storageDir      /* directory */
-            );
+                sImageFileName,  /* prefix */
+                EXTENSIONS.IMAGE,  /* suffix */
+                storageDir /* directory */
+            )
         }
 
-
-        public static String getRealPathFromUri(Context context, Uri contentUri) {
-            Cursor cursor = null;
+        fun getRealPathFromUri(context: Context, contentUri: Uri?): String {
+            var cursor: Cursor? = null
             try {
-                String[] imgData = {MediaStore.Images.Media.DATA};
-                cursor = context.getContentResolver().query(contentUri, imgData, null, null, null);
-                int nColumnIndex;
+                val imgData = arrayOf(MediaStore.Images.Media.DATA)
+                cursor = context.contentResolver.query(contentUri!!, imgData, null, null, null)
+                val nColumnIndex: Int
                 if (cursor != null) {
-                    nColumnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                    cursor.moveToFirst();
-                    return cursor.getString(nColumnIndex);
+                    nColumnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                    cursor.moveToFirst()
+                    return cursor.getString(nColumnIndex)
                 }
             } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+                cursor?.close()
             }
-            return "";
+            return ""
         }
     }
 
-
-    static class EXTENSIONS {
-        static final String AUDIO = ".3gp";
-        static final String IMAGE = ".jpg";
-        static final String VIDEO = ".mp4";
-
+    internal object EXTENSIONS {
+        const val AUDIO = ".3gp"
+        const val IMAGE = ".jpg"
+        const val VIDEO = ".mp4"
     }
 
-    public static class MediaType {
-        public static final String IMAGE = "image/*";
-        public static final String AUDIO = "audio/*";
-        static final String VIDEO = "video/mp4";
+    object MediaType {
+        const val IMAGE = "image/*"
+        const val AUDIO = "audio/*"
+        const val VIDEO = "video/mp4"
     }
-
 }

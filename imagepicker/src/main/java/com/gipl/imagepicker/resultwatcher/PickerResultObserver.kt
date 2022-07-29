@@ -1,107 +1,115 @@
-package com.gipl.imagepicker.resultwatcher;
+package com.gipl.imagepicker.resultwatcher
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Intent;
+import android.Manifest
+import androidx.activity.result.ActivityResultRegistry
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import com.gipl.imagepicker.ImagePicker
+import androidx.lifecycle.LifecycleOwner
+import androidx.activity.result.ActivityResultCallback
+import android.app.Activity
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.gipl.imagepicker.utility.MediaUtility
+import com.gipl.imagepicker.resultwatcher.PickerIntent
+import com.gipl.gallary.helpers.ConstantsCustomGallery
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.ActivityResultRegistry;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-
-import com.gipl.gallary.helpers.ConstantsCustomGallery;
-import com.gipl.imagepicker.ImagePicker;
-
-import org.jetbrains.annotations.NotNull;
-
-import static com.gipl.imagepicker.ImagePicker.CAMERA_PERMISSION_REQUEST;
-import static com.gipl.imagepicker.ImagePicker.STORAGE_ACCESS_PERMISSION_REQUEST;
-import static com.gipl.imagepicker.utility.MediaUtility.CAMERA_REQUEST;
-import static com.gipl.imagepicker.utility.MediaUtility.PROFILE_PHOTO;
-
-public class PickerResultObserver implements DefaultLifecycleObserver {
-
-    private final ActivityResultRegistry mRegistry;
-    private ActivityResultLauncher<Intent> mGetContent;
-    private ActivityResultLauncher<String[]> mGetCameraPermission;
-    private ActivityResultLauncher<Intent> mGetCameraContent;
-    private ActivityResultLauncher<Integer> mGetFromCustom;
-    private ActivityResultLauncher<String> mGetGalleryPermission;
-    private ImagePicker imagePicker;
-
-    public PickerResultObserver(ActivityResultRegistry registry) {
-        this.mRegistry = registry;
+class PickerResultObserver(private val mRegistry: ActivityResultRegistry) :
+    DefaultLifecycleObserver {
+    private var mGetContent: ActivityResultLauncher<Intent>? = null
+    private var mGetCameraPermission: ActivityResultLauncher<Array<String>>? = null
+    private var mGetCameraContent: ActivityResultLauncher<Intent>? = null
+    private var mGetFromCustom: ActivityResultLauncher<Int>? = null
+    private var mGetGalleryPermission: ActivityResultLauncher<String>? = null
+    private var imagePicker: ImagePicker? = null
+    fun setImagePicker(imagePicker: ImagePicker?) {
+        this.imagePicker = imagePicker
     }
 
-    public void setImagePicker(ImagePicker imagePicker) {
-        this.imagePicker = imagePicker;
+    override fun onCreate(owner: LifecycleOwner) {
+        mGetContent = mRegistry.register(
+            "key", owner,
+            ActivityResultContracts.StartActivityForResult()
+        ) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                if (imagePicker != null) imagePicker!!.onActivityResult(
+                    MediaUtility.PROFILE_PHOTO,
+                    result.resultCode,
+                    result.data
+                )
+            }
+        }
+        mGetCameraContent = mRegistry.register(
+            "keyCamera", owner,
+            ActivityResultContracts.StartActivityForResult()
+        ) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                if (imagePicker != null) imagePicker!!.onActivityResult(
+                    MediaUtility.CAMERA_REQUEST,
+                    result.resultCode,
+                    result.data
+                )
+            }
+        }
+        mGetFromCustom = mRegistry.register(
+            "keyCustom", owner, PickerIntent()
+        ) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                imagePicker!!.onActivityResult(
+                    ConstantsCustomGallery.REQUEST_CODE,
+                    result.resultCode,
+                    result.data
+                )
+            }
+        }
+        mGetCameraPermission = mRegistry.register(
+            "keyPermission",
+            owner,
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { result: Map<String, Boolean> ->
+            val isCameraPermissionGranted = result[Manifest.permission.CAMERA]!!
+            val isWriteToExternal = result[Manifest.permission.WRITE_EXTERNAL_STORAGE]!!
+            imagePicker!!.onRequestPermissionsResult(
+                arrayOf(
+                    isCameraPermissionGranted, isWriteToExternal
+                ), ImagePicker.CAMERA_PERMISSION_REQUEST
+            )
+        }
+        mGetGalleryPermission = mRegistry.register(
+            "keyGalleryPermission", owner,
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            imagePicker!!.onRequestPermissionsResult(
+                arrayOf(
+                    isGranted
+                ), ImagePicker.STORAGE_ACCESS_PERMISSION_REQUEST
+            )
+        }
     }
 
-    @Override
-    public void onCreate(@NonNull @NotNull LifecycleOwner owner) {
-        mGetContent = mRegistry.register("key", owner,
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (imagePicker != null)
-                            imagePicker.onActivityResult(PROFILE_PHOTO, result.getResultCode(), result.getData());
-                    }
-                });
-        mGetCameraContent = mRegistry.register("keyCamera", owner,
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (imagePicker != null)
-                            imagePicker.onActivityResult(CAMERA_REQUEST, result.getResultCode(), result.getData());
-                    }
-                });
-        mGetFromCustom = mRegistry.register("keyCustom", owner, new PickerIntent(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        imagePicker.onActivityResult(ConstantsCustomGallery.REQUEST_CODE, result.getResultCode(), result.getData());
-                    }
-                });
-
-        mGetCameraPermission = mRegistry.register("keyPermission",
-                owner,
-                new ActivityResultContracts.RequestMultiplePermissions(),
-                result -> {
-                    boolean isCameraPermissionGranted = result.get(Manifest.permission.CAMERA);
-                    boolean isWriteToExternal = result.get(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                    imagePicker.onRequestPermissionsResult(new Boolean[]{
-                                    isCameraPermissionGranted, isWriteToExternal
-                            }, CAMERA_PERMISSION_REQUEST
-                    );
-                }
-        );
-        mGetGalleryPermission = mRegistry.register("keyGalleryPermission", owner,
-                new ActivityResultContracts.RequestPermission(),
-                isGranted -> imagePicker.onRequestPermissionsResult(new Boolean[]{
-                                isGranted
-                        }, STORAGE_ACCESS_PERMISSION_REQUEST
-                ));
-
+    fun startSystemGallery(intent: Intent) {
+        mGetContent?.launch(intent)
     }
 
-    public void startSystemGallery(Intent intent) {
-        mGetContent.launch(intent);
+    fun startCamera(intent: Intent) {
+        mGetCameraContent?.launch(intent)
     }
 
-    public void startCamera(Intent intent) {
-        mGetCameraContent.launch(intent);
+    fun startCustomGallery(nMultiSelectCount: Int) {
+        mGetFromCustom?.launch(nMultiSelectCount)
     }
 
-    public void startCustomGallery(int nMultiSelectCount) {
-        mGetFromCustom.launch(nMultiSelectCount);
+    fun startPermissionForCamera() {
+        mGetCameraPermission?.launch(
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        )
     }
 
-    public void startPermissionForCamera() {
-        mGetCameraPermission.launch(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE});
-    }
-
-    public void startPermissionForGallery() {
-        mGetGalleryPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    fun startPermissionForGallery() {
+        mGetGalleryPermission?.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 }

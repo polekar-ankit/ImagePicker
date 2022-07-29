@@ -1,7 +1,8 @@
-package com.gipl.imagepicker.listener;
+package com.gipl.imagepicker.listener
 
-import android.os.Parcelable;
+import com.gipl.imagepicker.models.ImageResult
+import com.gipl.imagepicker.exceptions.ImageErrors
 
-public interface  IPickerDialogListener  {
-     void onCancelClick();
+interface IPickerDialogListener {
+    fun onCancelClick()
 }

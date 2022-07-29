@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/image picker/app/src/main/res/layout/fragment_blank.xml" value="0.1921875" />
         <entry key="..\:/image picker/imagepicker/src/main/res/drawable/bg_dialog.xml" value="0.1335" />
         <entry key="..\:/image picker/imagepicker/src/main/res/layout/layout_custom_image_picker.xml" value="0.33" />
       </map>

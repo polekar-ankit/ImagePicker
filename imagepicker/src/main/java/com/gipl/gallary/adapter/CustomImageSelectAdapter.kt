@@ -1,162 +1,142 @@
-package com.gipl.gallary.adapter;
+package com.gipl.gallary.adapter
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
-import com.bumptech.glide.request.RequestOptions;
-import com.gipl.gallary.helpers.ConstantsCustomGallery;
-import com.gipl.gallary.models.Image;
-import com.gipl.imagepicker.R;
-
-import java.util.ArrayList;
-
+import androidx.recyclerview.widget.RecyclerView
+import com.gipl.gallary.models.Album
+import com.bumptech.glide.request.RequestOptions
+import com.gipl.imagepicker.R
+import android.view.ViewGroup
+import android.view.LayoutInflater
+import com.bumptech.glide.Glide
+import android.app.Activity
+import android.util.Log
+import android.view.View
+import android.widget.*
+import com.bumptech.glide.Priority
+import com.gipl.gallary.adapter.CustomGenericAdapter
+import com.gipl.gallary.helpers.ConstantsCustomGallery
+import com.gipl.gallary.models.Image
+import java.util.ArrayList
 
 /**
- * Created by MyInnos on 03-11-2016.
+ * Created by Ankit on 03-11-2016.
  */
-public class CustomImageSelectAdapter extends RecyclerView.Adapter<CustomImageSelectAdapter.ViewHolder> {
-    protected int size = 0;
-    private RequestOptions requestOptions = new RequestOptions()
-            .dontAnimate()
-            .override(200, 200)
-            .placeholder(R.color.colorAccent)
-            .priority(Priority.IMMEDIATE);
-    private ArrayList<Image> images = new ArrayList<>();
-    private int countSelected;
-    private IItemClickListener iItemClickListener;
-
-    public ArrayList<Image> getImages() {
-        return images;
+class CustomImageSelectAdapter : RecyclerView.Adapter<CustomImageSelectAdapter.ViewHolder>() {
+    protected var size = 0
+    private val requestOptions = RequestOptions()
+        .dontAnimate()
+        .override(200, 200)
+        .placeholder(R.color.colorAccent)
+        .priority(Priority.IMMEDIATE)
+    val images = ArrayList<Image>()
+    var countSelected = 0
+    private var iItemClickListener: IItemClickListener? = null
+    fun addItems(newImages: ArrayList<Image>) {
+        val pos = images.size - 1
+        images.addAll(newImages)
+        notifyItemChanged(pos, newImages.size - 1)
     }
 
-    public int getCountSelected() {
-        return countSelected;
+    fun setiItemClickListener(iItemClickListener: IItemClickListener) {
+        this.iItemClickListener = iItemClickListener
     }
 
-    public void setCountSelected(int countSelected) {
-        this.countSelected = countSelected;
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val view = LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.grid_view_image_select, viewGroup, false)
+        return ViewHolder(view)
     }
 
-    public void addItems(ArrayList<Image> newImages) {
-        int pos = images.size() - 1;
-        this.images.addAll(newImages);
-        notifyItemChanged(pos, newImages.size() - 1);
-    }
-
-    public void setiItemClickListener(IItemClickListener iItemClickListener) {
-        this.iItemClickListener = iItemClickListener;
-    }
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.grid_view_image_select, viewGroup, false);
-        return new ViewHolder(view);
-    }
-
-
-    public ArrayList<Image> getSelected() {
-        ArrayList<Image> selectedImages = new ArrayList<>();
-        for (int i = 0; i < images.size(); i++) {
-            Image image = images.get(i);
-            if (image.isSelected) {
-                selectedImages.add(image);
-                Log.d("images",image.name+" "+i);
+    val selected: ArrayList<Image>
+        get() {
+            val selectedImages = ArrayList<Image>()
+            for (i in images.indices) {
+                val image = images[i]
+                if (image.isSelected) {
+                    selectedImages.add(image)
+                    Log.d("images", image.name + " " + i)
+                }
             }
+            return selectedImages
         }
-        return selectedImages;
+
+    fun setLayoutParams(size: Int) {
+        this.size = size
     }
 
-    public void setLayoutParams(int size) {
-        this.size = size;
-    }
-
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
-        if (size != 0)
-            size = viewHolder.view.getLayoutParams().width;
-        viewHolder.view.getLayoutParams().height = size;
-
-        if (images.get(position).isSelected) {
-            viewHolder.view.setAlpha(0.5f);
-            viewHolder.container.setForeground(viewHolder.imageView.getContext().getResources().getDrawable(R.drawable.ic_done_white));
-
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        if (size != 0) size = viewHolder.view.layoutParams.width
+        viewHolder.view.layoutParams.height = size
+        if (images[position].isSelected) {
+            viewHolder.view.alpha = 0.5f
+            viewHolder.container.foreground =
+                viewHolder.imageView.context.resources.getDrawable(R.drawable.ic_done_white)
         } else {
-            viewHolder.view.setAlpha(0.0f);
-            viewHolder.container.setForeground(null);
+            viewHolder.view.alpha = 0.0f
+            viewHolder.container.foreground = null
         }
-
-        Glide.with(viewHolder.imageView.getContext())
-                .load(images.get(position).path)
-                .apply(requestOptions)
-                .into(viewHolder.imageView);
-
-        viewHolder.itemView.setOnClickListener(v -> {
-            if (!images.get(position).isSelected && countSelected >= ConstantsCustomGallery.limit) {
+        Glide.with(viewHolder.imageView.context)
+            .load(images[position].path)
+            .apply(requestOptions)
+            .into(viewHolder.imageView)
+        viewHolder.itemView.setOnClickListener { v: View ->
+            if (!images[position].isSelected && countSelected >= ConstantsCustomGallery.limit) {
                 Toast.makeText(
-                        v.getContext(),
-                        String.format(v.getContext().getString(R.string.limit_exceeded), ConstantsCustomGallery.limit),
-                        Toast.LENGTH_SHORT)
-                        .show();
-                return;
+                    v.context,
+                    String.format(
+                        v.context.getString(R.string.limit_exceeded),
+                        ConstantsCustomGallery.limit
+                    ),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+                return@setOnClickListener
             }
-
-            images.get(position).isSelected = !images.get(position).isSelected;
-            if (images.get(position).isSelected) {
-                countSelected++;
+            images[position].isSelected = !images[position].isSelected
+            if (images[position].isSelected) {
+                countSelected++
             } else {
-                countSelected--;
+                countSelected--
             }
-            notifyItemChanged(position);
+            notifyItemChanged(position)
             if (iItemClickListener != null) {
-                iItemClickListener.onItemClick(images.get(position));
+                iItemClickListener!!.onItemClick(images[position])
             }
-        });
-    }
-
-    public void deselectAll() {
-        for (int i = 0, l = images.size(); i < l; i++) {
-            images.get(i).isSelected = false;
-        }
-        countSelected = 0;
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public int getItemCount() {
-        return images.size();
-    }
-
-    public void addItem(Image image) {
-        images.add(image);
-        notifyItemChanged(getItemCount() - 1);
-    }
-
-    public interface IItemClickListener {
-        void onItemClick(Image image);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public View view;
-        ImageView imageView;
-        FrameLayout container;
-
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            imageView = itemView.findViewById(R.id.image_view_image_select);
-            view = itemView.findViewById(R.id.view_alpha);
-            container = itemView.findViewById(R.id.container);
         }
     }
 
+    fun deselectAll() {
+        var i = 0
+        val l = images.size
+        while (i < l) {
+            images[i].isSelected = false
+            i++
+        }
+        countSelected = 0
+        notifyDataSetChanged()
+    }
+
+    override fun getItemCount(): Int {
+        return images.size
+    }
+
+    fun addItem(image: Image) {
+        images.add(image)
+        notifyItemChanged(itemCount - 1)
+    }
+
+    interface IItemClickListener {
+        fun onItemClick(image: Image?)
+    }
+
+    class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var view: View
+        var imageView: ImageView
+        var container: FrameLayout
+
+        init {
+            imageView = itemView.findViewById(R.id.image_view_image_select)
+            view = itemView.findViewById(R.id.view_alpha)
+            container = itemView.findViewById(R.id.container)
+        }
+    }
 }

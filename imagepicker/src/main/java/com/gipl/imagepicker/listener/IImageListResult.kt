@@ -1,15 +1,14 @@
-package com.gipl.imagepicker.listener;
+package com.gipl.imagepicker.listener
 
-import com.gipl.imagepicker.models.ImageResult;
+import com.gipl.imagepicker.models.ImageResult
+import com.gipl.imagepicker.exceptions.ImageErrors
+import java.util.ArrayList
 
-import java.util.ArrayList;
-
-public interface IImageListResult {
-
+interface IImageListResult {
     /**
      * for muti select you will receive result from this listener
      *
      * @param imageResults :array of ImageResult(image path and bitmap)
      */
-    void onReceiveImageList(ArrayList<ImageResult> imageResults);
+    fun onReceiveImageList(imageResults: ArrayList<ImageResult?>?)
 }

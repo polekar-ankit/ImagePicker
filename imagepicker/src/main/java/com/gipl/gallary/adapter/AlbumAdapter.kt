@@ -1,101 +1,93 @@
-package com.gipl.gallary.adapter;
+package com.gipl.gallary.adapter
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
-import com.bumptech.glide.request.RequestOptions;
-import com.gipl.gallary.models.Album;
-import com.gipl.imagepicker.R;
-
-import java.util.ArrayList;
-
+import androidx.recyclerview.widget.RecyclerView
+import com.gipl.gallary.models.Album
+import com.bumptech.glide.request.RequestOptions
+import com.gipl.imagepicker.R
+import android.view.ViewGroup
+import android.view.LayoutInflater
+import com.bumptech.glide.Glide
+import android.app.Activity
+import android.view.View
+import android.widget.*
+import com.bumptech.glide.Priority
+import com.gipl.gallary.adapter.CustomGenericAdapter
+import com.gipl.gallary.helpers.ConstantsCustomGallery
+import java.util.ArrayList
 
 /**
- * Created by MyInnos on 03-11-2016.
+ * Created by Ankit on 03-11-2016.
  */
-public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {
-    protected int size;
-    private IItemClickListener iItemClickListener;
-    private ArrayList<Album> arrayList = new ArrayList<>();
-    private RequestOptions requestOptions = new RequestOptions()
-            .dontAnimate()
-            .override(size, size)
-            .placeholder(R.color.colorAccent)
-            .priority(Priority.IMMEDIATE);
+class AlbumAdapter : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
+    protected var viewSize = 0
+    private var iItemClickListener: IItemClickListener? = null
+    private val arrayList = ArrayList<Album>()
+    private val requestOptions = RequestOptions()
+        .dontAnimate()
+        .override(viewSize, viewSize)
+        .placeholder(R.color.colorAccent)
+        .priority(Priority.IMMEDIATE)
 
-    public void setItemClickListener(IItemClickListener iItemClickListener) {
-        this.iItemClickListener = iItemClickListener;
+    fun setItemClickListener(iItemClickListener: IItemClickListener?) {
+        this.iItemClickListener = iItemClickListener
     }
 
-    public void setSize(int size) {
-        this.size = size;
+
+    fun setSize(size: Int) {
+        this.viewSize = size
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.grid_view_item_album_select, viewGroup, false);
-        return new ViewHolder(view);
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val view = LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.grid_view_item_album_select, viewGroup, false)
+        return ViewHolder(view)
     }
 
-    public void clear() {
-        arrayList.clear();
-        notifyDataSetChanged();
+    fun clear() {
+        arrayList.clear()
+        notifyDataSetChanged()
     }
 
-    public void addItem(ArrayList<Album> arrayList) {
-        this.arrayList.addAll(arrayList);
+    fun addItem(arrayList: ArrayList<Album>?) {
+        this.arrayList.addAll(arrayList!!)
     }
 
-    public Album getItem(int position) {
-        return arrayList.get(position);
+    fun getItem(position: Int): Album {
+        return arrayList[position]
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-
-        viewHolder.imageView.getLayoutParams().width = size;
-        viewHolder.imageView.getLayoutParams().height = size;
-
-        viewHolder.textView.setText(arrayList.get(position).name);
-
-        Glide.with(viewHolder.itemView.getContext())
-                .load(arrayList.get(position).cover)
-                .apply(requestOptions)
-                .into(viewHolder.imageView);
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        viewHolder.imageView.layoutParams.width = viewSize
+        viewHolder.imageView.layoutParams.height = viewSize
+        viewHolder.textView.text = arrayList[position].name
+        Glide.with(viewHolder.itemView.context)
+            .load(arrayList[position].cover)
+            .apply(requestOptions)
+            .into(viewHolder.imageView)
 
 //        viewHolder.imageView.setImageURI(Uri.parse(arrayList.get(position).cover));
-
-        viewHolder.itemView.setOnClickListener(v -> {
-            if (iItemClickListener != null)
-                iItemClickListener.onItemClick(arrayList.get(position));
-        });
+        viewHolder.itemView.setOnClickListener { v: View? ->
+            if (iItemClickListener != null) iItemClickListener!!.onItemClick(
+                arrayList[position]
+            )
+        }
     }
 
-    @Override
-    public int getItemCount() {
-        return arrayList.size();
+    override fun getItemCount(): Int {
+        return arrayList.size
     }
 
-    public interface IItemClickListener {
-        void onItemClick(Album album);
+    interface IItemClickListener {
+        fun onItemClick(album: Album?)
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
-        TextView textView;
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var imageView: ImageView
+        var textView: TextView
 
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            imageView = itemView.findViewById(R.id.image_view_album_image);
-            textView = itemView.findViewById(R.id.text_view_album_name);
+        init {
+            imageView = itemView.findViewById(R.id.image_view_album_image)
+            textView = itemView.findViewById(R.id.text_view_album_name)
         }
     }
 }
