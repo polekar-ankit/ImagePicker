@@ -62,23 +62,22 @@ setImageListResult(imageResults -> {
 setImagePickerResult(imageResult -> setImage(imageResult.getsImagePath(), imageResult.getImageBitmap()));
 ```
 
-also
 ## properties of PickerConfiguration
 
 #### 1.setTextColor(int colorCode)
 #### 2.setIconColor(int colorCode)
 #### 3.setBackGroundColor(int colorCode)
 #### 4.setIsDialogCancelable(boolean isCancelable): 
-        use to set cancelable property of  image picker dialog 
+       use to set cancelable property of  image picker dialog
 #### 5.enableMultiSelect(boolean enableMultiSelect)
 #### 6.setMultiSelectImageCount(int multiSelectImageCount):
-        if enableMultiSelect property set true then set multi select count
+       if enableMultiSelect property set true then set multi select count
 #### 7.setPickerDialogListener(pickerDialogListener: IPickerDialogListener?):
-        use this listener  to track cancel event of dialog 
+       use this listener  to track cancel event of dialog
 #### 8.setImagePickerResult(imagePickerResult: IImageResult?):
-        use this listener to get single image
+       use this listener to get single image
 #### 9. setImagePickerErrorListener(iImagePickerErrorListener: IImagePickerErrorListener?)
-        this method will listener error thrown by library while picking image
+       this method will listener error thrown by library while picking image
 #### NOTE : OUR OLD  ImagePicker.IImagePickerResult HAS BEEN REMOVE AND SEPARATED IN TO ABOVE THREE LISTENER ALSO WE HAVE CHANGE PACKAGE NAME
 
 
