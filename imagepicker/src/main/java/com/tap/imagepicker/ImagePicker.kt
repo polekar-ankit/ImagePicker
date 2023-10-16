@@ -78,12 +78,12 @@ class ImagePicker internal constructor(private val activity: Context) {
         try {
             if ((ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
                         == PackageManager.PERMISSION_GRANTED)
-                &&
-                ContextCompat.checkSelfPermission(
-                    activity,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                == PackageManager.PERMISSION_GRANTED
+//                &&
+//                ContextCompat.checkSelfPermission(
+//                    activity,
+//                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+//                )
+//                == PackageManager.PERMISSION_GRANTED
             ) {
                 startCameraIntent()
             } else {
@@ -97,7 +97,7 @@ class ImagePicker internal constructor(private val activity: Context) {
     @Throws(IOException::class)
     private fun startCameraIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (takePictureIntent.resolveActivity(activity.packageManager) != null) {
+//        if (takePictureIntent.resolveActivity(activity.packageManager) != null) {
             if (fStoreInMyPath) {
                 if (isDirAndPathProvided) {
                     val photoFile: File
@@ -125,7 +125,7 @@ class ImagePicker internal constructor(private val activity: Context) {
                 }
             }
             openCamera(takePictureIntent)
-        }
+//        }
     }
 
     fun setPikcerResultOberver(pickerResultObserver: PickerResultObserver?) {
@@ -133,27 +133,25 @@ class ImagePicker internal constructor(private val activity: Context) {
     }
 
     fun startGallary() {
-        if (ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            if (isEnableMultiSelect) {
-                pickerResultObserver!!.startCustomGallery(nMultiSelectCount)
-            } else {
+//        if (ContextCompat.checkSelfPermission(
+//                activity,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE
+//          ) == PackageManager.PERMISSION_GRANTED) {
+//            if (isEnableMultiSelect) {
+//                pickerResultObserver!!.startCustomGallery(nMultiSelectCount)
+//            } else {
                 val intent = Intent(Intent.ACTION_PICK)
-                if (intent.resolveActivity(activity.packageManager) == null) {
-                    nMultiSelectCount = 1
-                    pickerResultObserver?.startCustomGallery(nMultiSelectCount)
-                } else {
+//                if (intent.resolveActivity(activity.packageManager) == null) {
+//                    nMultiSelectCount = 1
+//                    pickerResultObserver?.startCustomGallery(nMultiSelectCount)
+//                } else {
                     intent.type = "image/*"
                     pickerResultObserver?.startSystemGallery(intent)
-                }
-            }
-        } else {
-            pickerResultObserver?.startPermissionForGallery()
-        }
+//                }
+//            }
+//        } else {
+//            pickerResultObserver?.startPermissionForGallery()
+//        }
     }
 
     /*!DIRECTORY.isEmpty() &&*/
