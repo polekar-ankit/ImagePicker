@@ -63,8 +63,8 @@ open class HelperActivity : AppCompatActivity() {
                     ConstantsCustomGallery.PERMISSION_REQUEST_CODE
                 )
             }
-        (snackbar.view
-            .findViewById<View>(R.id.snackbar_text) as TextView).maxLines = maxLines
+//        (snackbar.view
+//            .findViewById<View>(R.id.snackbar_text) as TextView).maxLines = maxLines
         snackbar.show()
     }
 
@@ -92,8 +92,8 @@ open class HelperActivity : AppCompatActivity() {
                 permissionResult.launch(intent)
 //                startActivityForResult(intent, ConstantsCustomGallery.PERMISSION_REQUEST_CODE)
             }
-        (snackbar.view
-            .findViewById<View>(R.id.snackbar_text) as TextView).maxLines = maxLines
+//        (snackbar.view
+//            .findViewById<View>(R.id.snackbar_text) as TextView).maxLines = maxLines
         snackbar.show()
     }
 

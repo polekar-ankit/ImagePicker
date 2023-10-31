@@ -96,9 +96,10 @@ class ImagePicker internal constructor(private val activity: Context) {
 
     @Throws(IOException::class)
     private fun startCameraIntent() {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
 //        if (takePictureIntent.resolveActivity(activity.packageManager) != null) {
-            if (fStoreInMyPath) {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (fStoreInMyPath) {
                 if (isDirAndPathProvided) {
                     val photoFile: File
                     photoFile = createImageFile(activity, IMAGE_PATH)
@@ -163,10 +164,11 @@ class ImagePicker internal constructor(private val activity: Context) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == CAMERA_REQUEST) {
                 Executors.newSingleThreadExecutor().submit {
-                    val photo = BitmapFactory.decodeFile(File(sImgPath).absolutePath)
+                    val imageFile = File(sImgPath);
+                    val photo = BitmapFactory.decodeFile(imageFile.absolutePath)
                     (activity as AppCompatActivity).runOnUiThread {
                         if (iImageResult != null) iImageResult!!.onImageGet(
-                            ImageResult(sImgPath, photo)
+                            ImageResult(sImgPath, photo,Uri.fromFile(imageFile))
                         )
                     }
                 }
@@ -179,14 +181,14 @@ class ImagePicker internal constructor(private val activity: Context) {
                                 activity.contentResolver,
                                 data.data!!
                             )
-                            if (sPath.trim { it <= ' ' }.isEmpty()) {
-                                sPath = getFilePathFromUri(
-                                    activity, insertImage(
-                                        activity, bitmap
-                                    )
-                                )
-                            }
-                            iImageResult?.onImageGet(ImageResult(sPath, bitmap))
+//                            if (sPath.trim { it <= ' ' }.isEmpty()) {
+//                                sPath = getFilePathFromUri(
+//                                    activity, insertImage(
+//                                        activity, bitmap
+//                                    )
+//                                )
+//                            }
+                            iImageResult?.onImageGet(ImageResult(sPath, bitmap,data.data))
                         } else {
                             iImagePickerErrorListener?.onError(
                                 ImageErrors(

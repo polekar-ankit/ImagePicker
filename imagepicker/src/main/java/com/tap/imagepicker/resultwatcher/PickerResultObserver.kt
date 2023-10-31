@@ -8,7 +8,10 @@ import android.content.Intent
 import com.tap.imagepicker.ImagePicker
 import androidx.lifecycle.LifecycleOwner
 import android.app.Activity
+import android.util.Log
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import com.tap.imagepicker.utility.MediaUtility
 import com.tap.gallary.helpers.ConstantsCustomGallery
@@ -21,6 +24,7 @@ class PickerResultObserver(private val mRegistry: ActivityResultRegistry) :
     private var mGetFromCustom: ActivityResultLauncher<Int>? = null
     private var mGetGalleryPermission: ActivityResultLauncher<String>? = null
     private var imagePicker: ImagePicker? = null
+    private var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>? = null
     fun setImagePicker(imagePicker: ImagePicker?) {
         this.imagePicker = imagePicker
     }
@@ -84,10 +88,30 @@ class PickerResultObserver(private val mRegistry: ActivityResultRegistry) :
                 ), ImagePicker.STORAGE_ACCESS_PERMISSION_REQUEST
             )
         }
+
+        pickMedia = mRegistry.register(
+            "keyGallery", ActivityResultContracts.PickVisualMedia()
+        ) { uri ->
+            val intent = Intent()
+            intent.data = uri
+            imagePicker?.onActivityResult(
+                MediaUtility.PROFILE_PHOTO,
+                Activity.RESULT_OK,
+                intent
+            )
+            if (uri != null) {
+                Log.d("PhotoPicker", "Selected URI: $uri")
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
+        }
+
     }
 
+
     fun startSystemGallery(intent: Intent) {
-        mGetContent?.launch(intent)
+//        mGetContent?.launch(intent)
+        pickMedia?.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     fun startCamera(intent: Intent) {
